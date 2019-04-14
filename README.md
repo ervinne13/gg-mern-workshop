@@ -25,6 +25,8 @@ npm -v
 6.4.1
 ```
 
+Make sure to install Node version 8 and above.
+
 __Testing Git__
 ```bash
 #### Run
