@@ -5,6 +5,7 @@
 Downloadables:
 - NodeJS [Download Here](https://nodejs.org/en/download)
 - Git [Download Here](https://git-scm.com/downloads)
+- Postman [Download Here](https://www.getpostman.com/downloads/)
 - MongoDB Community [Download Here](https://www.mongodb.com/download-center#community)
     - Make sure to install MongoDB Compass as well
 
