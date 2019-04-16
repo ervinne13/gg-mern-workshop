@@ -34,24 +34,36 @@ git version 2.19.1
 
 If any of the command results in `command not found` or anything similar, please refer back to the appropriate installation procedure.
 
+## Learning Objectives
+
+ - Improve learners' skill in JavaScript by imparting the best practices and lesser known must do's
+ - Train learners in developing application in MERN stack focusing on front end (React)
+ - Introduce learners on their options for using databases (serverless architecture, MLab, Firebase, and local MongoDB)
+ - Train learners in using source control management with GIT
+ - Introduce learners into deploying their applications in a VPS with NGINX reverse proxy
+
 ## The Workshop Contents:
 
 ### The fundamentals
-- 01 [You Don't Know JS & JavaScript Basics](/modules/01-js-basics.md)
-- 02 [Source Control Management](/modules/02-git.md)
+- 01 [JavaScript Basics](/modules/01-js-basics.md)
+- 02 [Eloquent JavaScript & You Don't Know JS]()
+- 03 [Source Control Management](/modules/02-git.md)
 
 ### React
-- 03 [Atomic Design]()
-- 04 [React Basics]()
-- 05 [Webpack]()
+- 04 [Atomic Design]()
+- 05 [React Basics]()
+- 06 [Webpack]()
+- 07 [React + Redux]()
 
 ### Backend
-- 06 [NodeJS & Express]()
-- 07 [Other Frameworks for NodeJS]()
-- 08 [RESTful API Development & Best Practices]()
-- 09 [Intro to MongoDB]()
+- 08 [NodeJS & Express]()
+- 09 [Other Frameworks for NodeJS]()
+- 10 [RESTful API Development & Best Practices]()
+- 11 [Intro to MongoDB]()
 
 ### Advanced
-- 10 [Design Patterns in JavaScript]()
-- 11 [Common Best Practices]()
-- 12 [Choosing a Structure/Architecture]()
+- 12 [Deploying Node/React Based Apps to VPS]()
+- 13 [HTTPS and Basic Security Configuration with NGINX]()
+- 14 [Design Patterns in JavaScript]()
+- 15 [Common Best Practices]()
+- 16 [Choosing a Structure/Architecture]()
