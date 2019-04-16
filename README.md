@@ -5,6 +5,12 @@
 Downloadables:
 - NodeJS [Download Here](https://nodejs.org/en/download)
 - Git [Download Here](https://git-scm.com/downloads)
+- Postman [Download Here](https://www.getpostman.com/downloads/)
+- MongoDB Community [Download Here](https://www.mongodb.com/download-center#community)
+    - Make sure to install MongoDB Compass as well
+
+If you're using Ubuntu or MongoDB Compass is not available, you may also use:
+- Robo3T [Download Here](https://robomongo.org/)
 
 ## Checklist
 
@@ -22,6 +28,8 @@ npm -v
 #### Outputs something like:
 6.4.1
 ```
+
+Make sure to install Node version 8 and above.
 
 __Testing Git__
 ```bash
