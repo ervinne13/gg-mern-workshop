@@ -60,18 +60,19 @@ If any of the command results in `command not found` or anything similar, please
 ### React
 - 04 [Atomic Design]()
 - 05 [React Basics]()
-- 06 [Webpack]()
+- 06 [Ejection From "Create React App" & Introduction to Webpack]()
 - 07 [React + Redux]()
+- 08 [Common Recommended Practices in React]()
 
 ### Backend
-- 08 [NodeJS & Express]()
-- 09 [Other Frameworks for NodeJS]()
-- 10 [RESTful API Development & Best Practices]()
-- 11 [Intro to MongoDB]()
+- 09 [NodeJS & Express]()
+- 10 [Other Frameworks for NodeJS]()
+- 11 [RESTful API Development & Best Practices]()
+- 12 [Intro to MongoDB]()
 
 ### Advanced
-- 12 [Deploying Node/React Based Apps to VPS]()
-- 13 [HTTPS and Basic Security Configuration with NGINX]()
-- 14 [Design Patterns in JavaScript]()
-- 15 [Common Best Practices]()
-- 16 [Choosing a Structure/Architecture]()
+- 13 [Deploying Node/React Based Apps to VPS]()
+- 14 [HTTPS and Basic Security Configuration with NGINX]()
+- 15 [Design Patterns in JavaScript]()
+- 16 [Common Best Practices]()
+- 17 [Choosing a Structure/Architecture]()
