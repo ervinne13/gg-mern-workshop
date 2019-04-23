@@ -46,7 +46,7 @@ If any of the command results in `command not found` or anything similar, please
 
  - Improve learners' skill in JavaScript by imparting the best practices and lesser known must do's
  - Train learners in developing application in MERN stack focusing on front end (React)
- - Introduce learners on their options for using databases (serverless architecture, MLab, Firebase, and local MongoDB)
+ - Introduce learners on their options for using databases (local storage, serverless architecture, MLab, Firebase, and local MongoDB)
  - Train learners in using source control management with GIT
  - Introduce learners into deploying their applications in a VPS with NGINX reverse proxy
 
@@ -68,7 +68,7 @@ If any of the command results in `command not found` or anything similar, please
 - 09 [NodeJS & Express]()
 - 10 [Other Frameworks for NodeJS]()
 - 11 [RESTful API Development & Best Practices]()
-- 12 [Intro to MongoDB]()
+- 12 [NoSQL Databases & Options (Serverless & Traditional)](/modules/nosql-dbs.md)
 
 ### Advanced
 - 13 [Deploying Node/React Based Apps to VPS]()
