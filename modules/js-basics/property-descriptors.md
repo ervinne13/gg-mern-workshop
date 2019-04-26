@@ -294,3 +294,40 @@ console.log(cart.total);    // 1000
 ```
 
 This will effectively make you create truly encapsulated objects that contain their own behaviors
+
+### All Object Properties have Property Descriptors
+
+Every object property has a property descriptor, even if we don’t set one using the `Object.defineProperty()` method. We can use another method, `Object.getOwnPropertyDescriptor()`, to read a property descriptor. The different methods of adding properties to objects will result in different default values (which is why the object literal getter/setter in the previous example differs from the one before it).
+
+Example:
+
+```js
+const obj1 = {
+  a: 1
+}
+
+console.log(Object.getOwnPropertyDescriptor(obj1, 'a'))
+
+// Prints out:
+// {
+//   value: 1,
+//   writable: true,
+//   enumerable: true,
+//   configurable: true
+// }
+```
+
+## Pop Quiz!
+
+Now that you’re familiar with property descriptors, let’s take a look at a situation one might encounter once you use (abuse) this feature. This is an example of the many kinds of situations our product Intrinsic protects against:
+
+What code could lead to this outcome?
+```js
+if (typeof obj.p === 'number' && obj.p > 10) {
+    console.log(obj.p) // outputs the string 'lies!'
+}
+```
+
+In this example we have an `if` statement. This statement checks to see if `obj.p` is a number, and it also checks to see if `obj.p` is greater than `10`. If both of these situations are `true` then we run the body of the `if` statement which is to print the value. However, when we print the value, we receive a string of `'lies!'` instead! Can you think of why this may happen?
+
+Answer (and prevention) [here](/modules/js-basics/property-descriptors-quiz-answer.md)
