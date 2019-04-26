@@ -71,7 +71,7 @@ If any of the command results in `command not found` or anything similar, please
 - 12 [NoSQL Databases & Options (Serverless & Traditional)](/modules/nosql-dbs.md)
 
 ### Advanced
-- 13 [Deploying Node/React Based Apps to VPS]()
+- 13 [Deploying Node/React Based Apps to VPS](/modules/react-deployment.md)
 - 14 [HTTPS and Basic Security Configuration with NGINX]()
 - 15 [Design Patterns in JavaScript]()
 - 16 [Common Best Practices]()
