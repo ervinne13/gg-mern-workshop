@@ -265,3 +265,32 @@ console.log(JSON.stringify(person));    //  "{\"age\":26}"
 ```
 
 __CAUTION!__ Of course, manually setting `_age` will bypass our validation so when you use this approach, DO NOT edit the supposedly private variable manually unless you really intend to bypass validations.
+
+You may also use getters to simulate an automatically computed field like so:
+
+```js
+const cart = {    
+    total: 0,
+    items: []
+};
+
+Object.defineProperty(cart, 'total', {    
+    get: function() {
+        let total = 0;
+        this.items.forEach(item => {
+            total += item.unitCost * item.qty;
+        })
+
+        return total;
+    },
+    
+});
+
+cart.items.push({ unitCost: 500, qty: 2 });
+console.log(cart.total);    // 1000
+
+cart.total = 83838;         //  must not work because we omitted setter
+console.log(cart.total);    // 1000
+```
+
+This will effectively make you create truly encapsulated objects that contain their own behaviors
