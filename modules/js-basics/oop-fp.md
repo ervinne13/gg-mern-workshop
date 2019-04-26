@@ -34,3 +34,5 @@ https://medium.com/intrinsic/javascript-prototype-poisoning-vulnerabilities-in-t
 https://medium.com/intrinsic/common-node-js-attack-vectors-the-dangers-of-malicious-modules-863ae949e7e8
 
 https://stackoverflow.com/questions/36726138/why-should-i-use-immutablejs-over-object-freeze
+
+https://gomakethings.com/how-to-handle-immutability-in-javascript/
