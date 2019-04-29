@@ -109,6 +109,147 @@ In this example we only allow the delete to affect the underlying `target` objec
 
 __WARNING! As you've noticed, both `set` and `delete` traps generate side effects. This is something that you need to be aware of when doing FP as you should be avoiding side effects.__
 
-Object Keys Proxy Trap
+## Object Keys Proxy Trap
 
-TODO: https://medium.com/intrinsic/javascript-object-property-descriptors-proxies-and-preventing-extension-1e1907aa9d10
+The `ownKeys` proxy trap is called when we attempt to list the keys within an object. It’s triggered in a variety of ways, such as running `Object.keys()`, `Reflect.ownKeys()`, `for (prop in obj)`, etc., on an object.
+
+```js
+const sym = Symbol();
+const orig = { p: 1, r: 2, [sym]: 3 };
+const handler = { ownKeys: (target) => ['p', sym] };
+const proxy = new Proxy(orig, handler);
+
+console.log(Object.keys(proxy));                     // ['p']
+console.log(Reflect.ownKeys(proxy));                 // ['p', sym]
+console.log(Object.getOwnPropertyNames(proxy);)      // ['p']
+console.log(Object.getOwnPropertySymbols(proxy));    // [sym]
+```
+
+## Apply Proxy Trap
+
+The `apply` proxy trap is called when a function is called. The second argument is the value of `this` when the function is called. Arguments to the function are provided as the third argument in an array.
+
+```js
+function orig(msg) {
+    return `Hello, ${msg}!`
+}
+
+const handler = {
+    apply: (target, self, args) => {
+        return target(String(args[0]).toUpperCase());
+    }
+};
+
+const proxy = new Proxy(orig, handler);
+console.log(orig('world')); // 'Hello, world!'
+console.log(proxy('world')); // 'Hello, WORLD!'
+// Also, Function.prototype.apply(), .call()
+```
+
+In this example we intercept the function call, capitalize the first argument, and pass that to the underlying `target` function.
+
+## Construct Proxy Trap
+
+The `construct` proxy trap is very similar to the apply proxy trap. However, it is specifically called when the `new` keyword is being provided.
+
+```js
+class Original {
+    constructor(arg) {
+        console.log(`Hello, ${arg}!`);
+    }
+}
+
+const handler = {
+    construct(target, args) {
+        return new target(String(args[0]).toUpperCase());
+    }
+};
+
+const OriginalProxy = new Proxy(Original, handler);
+new OriginalProxy('Tom'); // 'Hello, TOM!'
+```
+
+In this example we also take the first argument, capitalize it, and then provide it to the underlying constructor function. Note that this works with any `function`, not just those defined using the `class` keyword.
+
+## Get/Set Prototype Proxy Traps
+
+The `getPrototypeOf`, and `setPrototypeOf` proxy traps are called when attempting to access the prototype or when trying to override the prototype, respectively.
+
+```js
+const orig = {};
+const handler = {
+    getPrototypeOf: (target) => null,
+    setPrototypeOf: (target, proto) => {
+        throw new Error('__proto__ overwriting is not allowed');
+    }
+};
+
+const proxy = new Proxy(orig, handler);
+
+console.log(orig.__proto__);                // {}
+console.log(proxy.__proto__);               // null
+console.log(Object.getPrototypeOf(proxy));  // null
+console.log(Reflect.getPrototypeOf(proxy)); // null
+
+proxy.__proto__ = {};                       // __proto__ overwriting is not allowed
+Reflect.setPrototypeOf(proxy, {});          // __proto__ overwriting is not allowed
+```
+
+In the above example we’re lying whenever the prototype is accessed and saying that the value is `null`. Whenever one attempts to override the prototype we then throw an error. This can be useful for locking down an object and preventing prototype modifications.
+
+## Extensibility Proxy Traps
+
+The `preventExtensions` and `isExtensible` proxy traps are called when running `Object.preventExtensions()` and `Object.isExtensible()` on a proxy.
+
+```js
+const orig = {};
+const handler = {
+    preventExtensions: (target) => {
+        //  .. you can do anything here as long as you call preventExtensions below like so:
+        return Object.preventExtensions(target);
+    },
+    isExtensible: (target) => {
+        //  .. you can do anything here as long as you call isExtensible below like so:
+        return Reflect.isExtensible(target);
+    }
+};
+
+const proxy = new Proxy(orig, handler);
+console.log(Object.isExtensible(proxy)); // true
+Object.preventExtensions(proxy);
+console.log(Object.isExtensible(proxy)); // false
+// Note: Can't lie, otherwise will throw Error
+```
+
+In this example we’re simply calling out to the correlating Reflect methods and returning the values. However we could also throw an error or log the access if we wanted. Note that we can’t actually lie in these situations. For example, if you call `Object.preventExtensions(proxy)`, and don’t actually prevent extensions on the `proxy` object, then JavaScript will throw an error. The same thing happens if you lie with the `isExtensible` result.
+
+Follow along the instructor as he proves JavaScript preventing you from not calling `preventExtensions` or `isExtensible` in their respective traps.
+
+## Property Descriptors Proxy Traps
+
+And finally, the `defineProperty` and `getOwnPropertyDescriptor` proxy traps are called when either setting or getting a property descriptor of an object.
+
+```js
+const proxy = new Proxy({}, {
+    defineProperty: (target, prop, desc) => {
+        if (desc.value === 42) {
+            Object.defineProperty(target, prop, desc);
+        }
+        
+        return true;
+    },
+    getOwnPropertyDescriptor: (target, prop) => {
+        return Object.getOwnPropertyDescriptor(target, prop);
+    }
+});
+
+Object.defineProperty(proxy, 'p', { value: 42 });
+Object.defineProperty(proxy, 'r', { value: 43 });   //  should not take effect
+
+console.log(proxy.p, proxy.r); // 42, undefined
+
+proxy.r = 43;   //  should not take effect
+console.log(proxy.p, proxy.r); // 42, undefined
+```
+
+In this example we only allow the `defineProperty` proxy trap to modify a property descriptor if the value being modified is equal to `42`. When reading the property descriptors we simply trigger the default behavior. This is useful for only allowing certain property descriptor settings to be set, or enforcing that all new properties have their `configurable` property set to `false`, etc.
