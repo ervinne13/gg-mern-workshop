@@ -1,18 +1,13 @@
-function foo() {
-    console.log( this.a );
-}
+var AwesomeModule = (function() {
+    var a = 10;
 
-function doFoo(fn) {
-    //  ... do some things here, usually asynchronous stuff
-    // `fn` is just another reference to `foo`
-    fn(); // <-- call-site!
-}
+    function getPrivateA() {
+        return a;
+    }
 
-var obj = {
-    a: 2,
-    foo: foo
-};
+    return {
+        getPrivateA: getPrivateA
+    };
+})();
 
-var a = "oops, global"; // `a` also property on global object
-
-doFoo( foo.bind(obj) ); // 2 | yey
+console.log(AwesomeModule.getPrivateA());

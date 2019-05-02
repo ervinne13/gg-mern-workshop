@@ -42,54 +42,6 @@ There are four rules for how `this` gets set, and they're shown in those last fo
 
 - `new foo()` sets this to a brand new empty object.​
 
-### Overwriting the `this` Keyword
-
-```js
-function foo() {
-    console.log(this.bar);
-}
-
-foo.call({ bar: 'using call' });
-foo.apply({ bar: 'using apply' });
-foo.bind({ bar: 'using bind' })();  //  notice that we have to call foo first by adding ()
-```
-
-### __Note: `apply()` vs `call()`__
-
-While the syntax of `call()` function is almost identical to that of `apply()`, the fundamental difference is that `call()` accepts an __argument list__, while `apply()` accepts a __single array of arguments__.
-
-Example using `call()`:
-
-```js
-function Product(name, price) {
-    this.name = name;
-    this.price = price;
-}
-
-function Food(name, price) {
-    Product.call(this, name, price);
-    this.category = 'food';
-}
-
-console.log(new Food('cheese', 5).name);
-```
-
-Example using `apply()`:
-
-```js
-var numbers = [5, 6, 2, 3, 7];
-
-var max = Math.max.apply(null, numbers);
-
-console.log(max);
-// expected output: 7
-
-var min = Math.min.apply(null, numbers);
-
-console.log(min);
-// expected output: 2
-```
-
 __More example for demonstrating the `this` keyword__
 
 Like the instructure mentions, lots of frustration happen when dealing with the `this` keyword and a lot of developers tend to avoid this because of the lack of understanding. Let's examine one more example:
@@ -339,3 +291,164 @@ var a = "oops, global"; // `a` also property on global object
 doFoo( foo.bind(obj) ); // 2 | yey
 ```
 
+What we just did, is what we call __"Explicit Binding"__.
+
+#### Explicit Binding
+
+This is if you want to force a function call to use a particular object for the this binding, without putting a property function reference on the object (like what we do in implicit binding).
+
+
+```js
+function foo() {
+    console.log(this.bar);
+}
+
+foo.call({ bar: 'using call' });
+foo.apply({ bar: 'using apply' });
+foo.bind({ bar: 'using bind' })();  //  notice that we have to call foo first by adding ()
+```
+
+### __Note: `apply()` vs `call()`__
+
+While the syntax of `call()` function is almost identical to that of `apply()`, the fundamental difference is that `call()` accepts an __argument list__, while `apply()` accepts a __single array of arguments__.
+
+Example using `call()`:
+
+```js
+function Product(name, price) {
+    this.name = name;
+    this.price = price;
+}
+
+function Food(name, price) {
+    Product.call(this, name, price);
+    this.category = 'food';
+}
+
+console.log(new Food('cheese', 5).name);
+```
+
+Example using `apply()`:
+
+```js
+var numbers = [5, 6, 2, 3, 7];
+
+var max = Math.max.apply(null, numbers);
+
+console.log(max);
+// expected output: 7
+
+var min = Math.min.apply(null, numbers);
+
+console.log(min);
+// expected output: 2
+```
+
+Note: if you ever did jQuery and wondered how the `this` keyword is pointing to the button or element when an `onClick` event is set to it, this is what jQuery does under the hood. Manually setting the context to replace what the `this` keyword represents.
+
+#### `new` Binding
+
+The fourth and final rule for `this` binding requires us to re-think a very common misconception about functions and objects in JavaScript.
+
+In traditional class-oriented languages, "constructors" are special methods attached to classes, that when the class is instantiated with a `new` operator, the constructor of that class is called. This usually looks something like:
+
+```js
+something = new MyClass(..);
+```
+
+JavaScript has a `new` operator, and the code pattern to use it looks basically identical to what we see in those class-oriented languages; most developers assume that JavaScript's mechanism is doing something similar. However, there really is no connection to class-oriented functionality implied by `new` usage in JS.
+
+First, let's re-define what a "constructor" in JavaScript is. In JS, constructors are __just functions__ that happen to be called with the `new` operator in front of them. They are not attached to classes, nor are they instantiating a class. They are not even special types of functions. They're just regular functions that are, in essence, hijacked by the use of `new` in their invocation.
+
+Consider this code:
+
+```js
+function foo(a) {
+    this.a = a;
+}
+
+var bar = new foo( 2 );
+console.log( bar.a ); // 2
+```
+
+By calling `foo(..)` with new in front of it, we've constructed a new object and set that new object as the `this` for the call of `foo(..)`. __So `new` is the final way that a function call's `this` can be bound.__ We'll call this `new` binding.
+
+### Order of Precedence
+
+So, now we've uncovered the 4 rules for binding `this` in function calls. All you need to do is find the call-site and inspect it to see which rule applies. But, what if the call-site has multiple eligible rules? There must be an order of precedence to these rules, and so we will next demonstrate what order to apply the rules.
+
+We can summarize the rules for determining `this` from a function call's call-site, in their order of precedence. Ask these questions in this order, and stop when the first rule applies.
+
+1. Is the function called with new (new binding)? If so, this is the newly constructed object.
+
+```js
+    var bar = new foo()
+```
+
+2. Is the function called with call or apply (explicit binding), even hidden inside a bind hard binding? If so, this is the explicitly specified object.
+
+```js
+    var bar = foo.call( obj2 )
+```
+
+3. Is the function called with a context (implicit binding), otherwise known as an owning or containing object? If so, this is that context object.
+
+```js
+    var bar = obj1.foo()
+```
+
+4. Otherwise, default the this (default binding). If in strict mode, pick undefined, otherwise pick the global object.
+
+```js
+    var bar = foo()
+```
+
+### Binding Exceptions
+
+As usual, there are some exceptions to the "rules".
+
+The `this`-binding behavior can in some scenarios be surprising, where you intended a different binding but you end up with binding behavior from the default binding rule (see previous).
+
+#### Ignored `this`
+
+If you pass null or undefined as a this binding parameter to call apply, or bind, those values are effectively ignored, and instead the default binding rule applies to the invocation.
+
+```js
+function foo() {
+    console.log( this.a );
+}
+
+var a = 2;
+
+foo.call( null ); // 2
+```
+
+Why would you intentionally pass something like `null` for a `this` binding?
+
+It's quite common to use `apply(..)` for spreading out arrays of values as parameters to a function call. Similarly, `bind(..)` can curry parameters (pre-set values), which can be very helpful.
+
+```js
+function foo(a, b) {
+    console.log( "a:" + a + ", b:" + b );
+}
+
+// spreading out array as parameters
+foo.apply( null, [2, 3] ); // a:2, b:3
+
+// currying with `bind(..)`
+var bar = foo.bind( null, 2 );
+bar( 3 ); // a:2, b:3
+```
+
+In otherwords, you may encounter code like this in legacy systems (pre-ES6) because in ES6, there's a better way to do this which is to use the spread operator `...` (more on this on ES5 section). Or in `bind`'s case, do currying (higher order functions).
+
+## Review
+
+Determining the this binding for an executing function requires finding the direct call-site of that function. Once examined, four rules can be applied to the call-site, in this order of precedence:
+
+1. Called with `new`? Use the newly constructed object.
+2. Called with `call` or `apply` (or `bind`)? Use the specified object.
+3. Called with a context object owning the call? Use that context object.
+4. Default: `undefined` in `strict mode`, global object otherwise.
+
+Now move on to the next topic [Prototypes & Closures](/modules/js-basics/prototypes-closures.md)

@@ -508,41 +508,6 @@ It's much more common and accepted to use hoisted function declarations, as we d
 
 (Later on though, we'll be defying this warning when we do an activity. More explanation later.)
 
-## Immediately Invoked Function Expressions
-
-Immediately Invoked Function Expressions or IIFE is literally what it sounds like. You create a function and immediately invoke it. When you're in NodeJS's environment, every file is automatically wrapped in IIFE. This is because IIFE is used to simulate modules and ability to create private members!
-
-```js
-void function() {
-    //  ...
-}()
-
-// or better expressed like:
-(function() {
-    // ...
-})();
-```
-
-In effect, IIFE will:
-
-- Protect against polluting the global or upper scope(s)​
-- Allow pseudo private access in JavaScript (we’ll learn this later in closures)
-
-Because an IIFE is just a function, and functions create variable scope, using an IIFE in this fashion is often used to declare variables that won't affect the surrounding code outside the IIFE:​
-
-```js
-var a = 42;
-
-(function IIFE() {
-    var a = 10;
-    console.log(a); //  10;
-})();
-
-console.log(a); // 42;
-```
-
-Follow along the instructore as he shows more examples on how useful IIFE is.
-
 Before moving on to the next topic, you might want to take a short break as we will now tackle one of the most problematic and often misunderstood areas in JavaScript. The `this` keyword.
 
 [Click here](/modules/js-basics/mastering-this-keyword.md) when you're ready
