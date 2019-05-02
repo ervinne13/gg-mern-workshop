@@ -1,20 +1,18 @@
-const proxy = new Proxy({}, {
-    defineProperty: (target, prop, desc) => {
-        if (desc.value === 42) {
-            Object.defineProperty(target, prop, desc);
-        }
-        
-        return true;
-    },
-    getOwnPropertyDescriptor: (target, prop) => {
-        return Object.getOwnPropertyDescriptor(target, prop);
-    }
-});
+function foo() {
+    console.log( this.a );
+}
 
-Object.defineProperty(proxy, 'p', { value: 42 });
-Object.defineProperty(proxy, 'r', { value: 43 });   //  should not take effect
+function doFoo(fn) {
+    //  ... do some things here, usually asynchronous stuff
+    // `fn` is just another reference to `foo`
+    fn(); // <-- call-site!
+}
 
-console.log(proxy.p, proxy.r); // 42, undefined
+var obj = {
+    a: 2,
+    foo: foo
+};
 
-proxy.r = 43;   //  should not take effect
-console.log(proxy.p, proxy.r); // 42, undefined
+var a = "oops, global"; // `a` also property on global object
+
+doFoo( foo.bind(obj) ); // 2 | yey
