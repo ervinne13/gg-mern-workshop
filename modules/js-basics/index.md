@@ -1,6 +1,6 @@
-# JavaScript Basics
+# JavaScript Fundamentals
 
-The instructor calls this part of the workshop as "basics" but it's probably more appropriate to call it fundamentals. The instructor will only scratch through things in programming that you should already know like control structures, conditionals, etc. __The workshop will focus more on things that are usually taken for granted by a lot of developers (juniors and seniors alike).__
+The instructor will only scratch through things in programming that you should already know like control structures, conditionals, etc. __The workshop will focus more on things that are usually taken for granted by a lot of developers (juniors and seniors alike).__
 
 ## Values & Types: How Variables are Stored
 
