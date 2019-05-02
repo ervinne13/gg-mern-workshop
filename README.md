@@ -54,8 +54,8 @@ If any of the command results in `command not found` or anything similar, please
 
 ### The fundamentals
 - 01 [JavaScript Fundamentals](/modules/js-basics/index.md)
-- 02 [Eloquent JavaScript & You Don't Know JS]()
-- 03 [Source Control Management](/modules/02-git.md)
+- 02 [Object Oriented & Functional Programming in JS](/modules/js-basics/oop-fp.md)
+- 03 [Source Control Management](/modules/git.md)
 
 ### React
 - 04 [Atomic Design]()
