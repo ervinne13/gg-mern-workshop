@@ -10,7 +10,7 @@ const orig = {};
 Object.defineProperty(orig, 'name', {
     get: () => {
         console.log('2. prop desc get');
-        return 'Thomas';
+        return 'Ervinne';
     }
 });
 
@@ -23,7 +23,7 @@ const proxy = new Proxy(orig, {
 
 console.log(`3. ${proxy.name}`); // 1. proxy get
                                  // 2. prop desc get
-                                 // 3. Thomas
+                                 // 3. Ervinne
 ```
 
 In this example we’re using both the `get` property descriptor applied to our `orig` object, as well as the `get` proxy trap with the `orig` object being the target. When we attempt to read the `name` property it first calls the proxy trap, then calls the property descriptor, before returning the actual value the calling location.
