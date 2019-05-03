@@ -10,15 +10,15 @@ Personally though, if you ask the instructor, the answer will always be "it depe
 
 - OOP Basics
 - __`True`__ Encapsulation (and misconceptions)
-- [Property Descriptors](/modules/js-basics/property-descriptors.md)
-- [Using (Abusing) Property Descriptors to Implement OOP](/modules/js-basics/property-descriptors-in-oop.md)
+- [Property Descriptors](/modules/oop-fp/property-descriptors.md)
+- [Using (Abusing) Property Descriptors to Implement OOP](/modules/oop-fp/property-descriptors-in-oop.md)
 - Performance Considerations
 
 ## Functional Programming
 
 - FP Basics
 - Immutability and Pure Functions
-- [Locking Down Objects](/modules/js-basics/locking-down-objects.md)
+- [Locking Down Objects](/modules/oop-fp/locking-down-objects.md)
 - Performance Considerations
 
 ## Notes
