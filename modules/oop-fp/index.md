@@ -8,22 +8,18 @@ Personally though, if you ask the instructor, the answer will always be "it depe
 
 ## Object Oriented Programming
 
-- OOP Basics
-- __`True`__ Encapsulation (and misconceptions)
+- [OOP Basics](/modules/oop-fp/oop-basics.md)
 - [Property Descriptors](/modules/oop-fp/property-descriptors.md)
 - [Using (Abusing) Property Descriptors to Implement OOP](/modules/oop-fp/property-descriptors-in-oop.md)
-- Performance Considerations
 
 ## Functional Programming
 
-- FP Basics
-- Immutability and Pure Functions
+- [FP Basics, Immutability and Pure Functions](/modules/oop-fp/fp-basics.md)
 - [Locking Down Objects](/modules/oop-fp/locking-down-objects.md)
-- Performance Considerations
 
 ## Notes
 
-The instructore was not able to create reasonable benchmarks so we're currently unsure of performance implications. To properly benchmark things, complex setup and scenarios must be simulated for each.
+The instructor was not able to create reasonable benchmarks so we're currently unsure of performance implications. To properly benchmark things, complex setup and scenarios must be simulated for each.
 
 In general though, with how fast servers are anyway, you should care more about how maintainable your source code is than how optimize it is (read about pre-mature optimization).
 
