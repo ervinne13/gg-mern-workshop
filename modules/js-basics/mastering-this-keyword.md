@@ -94,6 +94,10 @@ console.log(parent().foo.bar);  //  undefined
 ​
 We created an object using the `parent()` function returning an object literal with `foo` yet we still can't access `this.bar`'s value.
 
+### What We're Getting Wrong
+
+What the instructor observe is that developers usually assume that the `this` keyword is based on the parent where the function accessing it is declared. This is entirely wrong.
+
 ### Trying to make sense:
 
 The `this` identifier is contextual based on the conditions of the function's invocation. this binding has nothing to do with where a function is declared, but has instead everything to do with __the manner in which the function is called.__ ​

@@ -21,18 +21,26 @@ Personally though, if you ask the instructor, the answer will always be "it depe
 - [Locking Down Objects](/modules/js-basics/locking-down-objects.md)
 - Performance Considerations
 
-## Benchmarks
+## Notes
 
-TODO: Deepfrozen objects under FP vs Behavior rich objects under OOP
+The instructore was not able to create reasonable benchmarks so we're currently unsure of performance implications. To properly benchmark things, complex setup and scenarios must be simulated for each.
 
-Research later:
+In general though, with how fast servers are anyway, you should care more about how maintainable your source code is than how optimize it is (read about pre-mature optimization).
 
-https://medium.com/intrinsic/javascript-object-property-descriptors-proxies-and-preventing-extension-1e1907aa9d10
+## Further Reading
+
+### ImmutabilityJS vs Object Freeze
+
+https://stackoverflow.com/questions/36726138/why-should-i-use-immutablejs-over-object-freeze
+
+https://gomakethings.com/how-to-handle-immutability-in-javascript/
+
+### Security
+
+We wont be dealing very deeply with security right inside our source code but if you're interested, the following reads are good.
 
 https://medium.com/intrinsic/javascript-prototype-poisoning-vulnerabilities-in-the-wild-7bc15347c96
 
 https://medium.com/intrinsic/common-node-js-attack-vectors-the-dangers-of-malicious-modules-863ae949e7e8
 
-https://stackoverflow.com/questions/36726138/why-should-i-use-immutablejs-over-object-freeze
-
-https://gomakethings.com/how-to-handle-immutability-in-javascript/
+Of course, we'll cover basic security management later on, some security scans, and implementing SSL.

@@ -330,4 +330,4 @@ if (typeof obj.p === 'number' && obj.p > 10) {
 
 In this example we have an `if` statement. This statement checks to see if `obj.p` is a number, and it also checks to see if `obj.p` is greater than `10`. If both of these situations are `true` then we run the body of the `if` statement which is to print the value. However, when we print the value, we receive a string of `'lies!'` instead! Can you think of why this may happen?
 
-Answer (and prevention) [here](/modules/js-basics/property-descriptors-quiz-answer.md)
+Answer (and prevention) [here](/modules/oop-fp/property-descriptors-quiz-answer.md)
