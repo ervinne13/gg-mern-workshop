@@ -1,0 +1,184 @@
+# Tic Tac Toe Game
+
+## Creating the Board
+
+Let's first write some dummy markup for now so we can better visualize what we're about to do:
+
+Create a new folder called `tic-tac-toe-draft`, inside it, two new files called `index.html` and `style.css`.
+
+Visualizing the output, we want something like 9 clickable squares in a grid:
+
+![tic tac toe](/img/tic-tac-toe-grid.png)
+
+In general, what we can make up with this is we need a "button" component and a row that encapsulates 3 buttons at a time.
+
+With this in mind, update the `index.html` file and put the following markup:
+
+File `index.html`:
+```html
+<html>
+    <head>
+        <title>Tic Tac Toe</title>
+        <link rel="stylesheet" href="styles.css" />
+    </head>
+    <body>
+        <div class="game">
+            <div class="game-board">                
+                <div class="board-row">
+                    <button class="square"></button>
+                    <button class="square"></button>
+                    <button class="square"></button>
+                </div>
+                <div class="board-row">
+                    <button class="square"></button>
+                    <button class="square"></button>
+                    <button class="square"></button>
+                </div>
+                <div class="board-row">
+                    <button class="square"></button>
+                    <button class="square"></button>
+                    <button class="square"></button>
+                </div>
+            </div>                  
+        </div> 
+    </body>
+</html>
+```
+
+Open `index.html` in your browser and you should get something like:
+
+![tic tac toe progress 1](/img/tic-tac-toe-prog1.png)
+
+Let's get to styling things.
+
+## Styling the Board
+
+Let's try turning the buttons (with class `square`) into actual squares. Add the following in the `style.css` file:
+
+```css
+.square {
+    background: #fff;
+    border: 1px solid #999;
+}
+```
+
+This will turn the buttons into a rectangle, now we want to fix the height and the width so it would look like an actual square. In the `.square` class in your css, add the following:
+
+```css
+.square {
+    /* ... */
+    height: 34px;
+    width: 34px;
+}
+```
+
+Your grid should now look something like:
+
+![tic tac toe progress 2](/img/tic-tac-toe-prog2.png)
+
+Looks good! Let's try "sticking" them together. We can do this by removing all the padding and margins.
+
+```css
+.square {
+    /* ... */
+    margin: 0;
+    padding: 0;
+}
+```
+
+Check your page and weirdly enough, not much seems to change.
+
+### Understanding Displays in CSS
+
+This is because the parent is displaying objects in `block` which is the default way an element is displayed.
+
+Let's change that by adding:
+
+```css
+.board-row {
+    display: table;
+}
+```
+
+The property `display: table` will force non-table elements to behave like table-elements.
+
+Refresh your page and the squares should now "stick" together.
+
+There's still one problem though, it seems as though the borders inside the grid are thicker. This is because each square boxes have their own borders. We can "fix" this by setting (cheating) margin to the negative value of the border which is 1px;
+
+```css
+.square {
+    /* ... */
+    margin: 1px;
+    /* ... */
+}
+```
+
+This would then allow us to emulate our objective view. It's not over yet though, we still have to test what happens if the view now has content of X and O.
+
+### Retaining the Style After Updating Content
+
+Try updating your markup and randomly add some `X` and `O`s like so:
+
+```html
+<!-- ... -->
+    <div class="game-board">                
+        <div class="board-row">                    
+            <button class="square">X</button>
+            <button class="square">O</button>
+            <button class="square"></button>
+        </div>
+        <div class="board-row">
+            <button class="square"></button>
+            <button class="square">O</button>
+            <button class="square"></button>
+        </div>
+        <div class="board-row">
+            <button class="square"></button>
+            <button class="square"></button>
+            <button class="square"></button>
+        </div>
+    </div> 
+<!-- ... -->
+```
+
+Test it in the browser and you should see that our boxes are broken:
+
+![Broken tic tac toe](/img/tic-tac-toe-prog3.png)
+
+This is caused by `vertical-align: baseline;` which is the default vertical align of elements. Notice that the "base" of the other buttons are trying to align at the center of the text of the button(s). This is the effect of baseline in this case. To fix this, instead of the baseline, we tell the buttons to align itself with the `middle` like so:
+
+```css
+.square {
+    /* ... */
+    vertical-align: middle;
+}
+```
+
+Check to see that our view is now correct:
+
+![Broken tic tac toe](/img/tic-tac-toe-prog4.png)
+
+## Creating the Project in React
+
+Create your project with the command:
+
+```bash
+npx create-react-app tic-tac-toe
+```
+
+Tip: we use `npx` not `npm`. Think of `npx` as something similar to `npm run`, it's used to run some package that is usually installed globally.
+
+## Cleaning Up
+
+Remove the files inside the `src` folder by:
+
+```bash
+rm -rf tic-tac-toe/src/*
+```
+
+Note that you have to run this inside git bash if you're on windows as this is linux syntax, if you're on windows, just delete everything inside the src folder or run in cmd:
+
+```bash
+del tic-tac-toe/src/*
+```

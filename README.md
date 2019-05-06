@@ -5,6 +5,7 @@
 Downloadables:
 - NodeJS [Download Here](https://nodejs.org/en/download)
 - Git [Download Here](https://git-scm.com/downloads)
+- Create React App (Setup Below)
 - Postman [Download Here](https://www.getpostman.com/downloads/)
 - MongoDB Community [Download Here](https://www.mongodb.com/download-center#community)
     - Make sure to install MongoDB Compass as well
@@ -41,6 +42,16 @@ git version 2.19.1
 ```
 
 If any of the command results in `command not found` or anything similar, please refer back to the appropriate installation procedure.
+
+## Installing Create React App
+
+In your terminal, run:
+
+```bash
+# bash
+
+npm install -g create-react-app
+```
 
 ## Learning Objectives
 
