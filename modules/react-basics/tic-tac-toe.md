@@ -118,6 +118,8 @@ For Example, all the following markup will result in a space between the element
 
 But if you remove the space and forcefully "stick" the elements together, we could achieve the "sticking" effect that we wanted.
 
+For 4x
+
 #### Display: Block Sample
 
 Let's change that by adding:
@@ -226,3 +228,112 @@ Note that you have to run this inside git bash if you're on windows as this is l
 ```bash
 del tic-tac-toe/src/*
 ```
+
+## Creating Our Components
+
+Since our UI is small, there's not much need to do a component sheet/library for it so we implement the UI directly.
+
+Let's create our `square` component by creating a new file called `Square.jsx` in our `/src/` folder.
+
+File `Square.jsx`:
+
+```jsx
+import React from 'react';
+
+class Square extends React.Component {
+    render() {
+        return (
+            <button className="square">
+                {/* TODO */}
+            </button>
+        );
+    }
+}
+
+export default Square;
+```
+
+We'll also create actual board (combination of squares) component. Create the file `Board.jsx` in the `/src/` folder.
+
+```jsx
+import React from 'react';
+import Square from './Square';
+
+class Board extends React.Component {
+    renderSquare(i) {
+        return <Square />;
+    }
+
+    render() {
+        const status = 'Next player: X';
+
+        return (
+            <div>
+                <div className="status">{status}</div>
+                <div className="board-row">
+                    <Square />
+                    <Square />
+                    <Square />
+                </div>
+                <div className="board-row">
+                    <Square />
+                    <Square />
+                    <Square />
+                </div>
+                <div className="board-row">
+                    <Square />
+                    <Square />
+                    <Square />
+                </div>
+            </div>
+        );
+    }
+}
+
+export default Board;
+
+```
+
+Create our app or entry point component which we will be adding some mark up as well later by creating a new file `App.jsx` in the `/src/` folder.
+
+File `App.jsx`:
+```jsx
+import React from 'react';
+import Board from './Board';
+
+class App extends React.Component {
+    render() {
+        return (
+            <div className="game">
+                <div className="game-board">
+                    <Board />
+                </div>
+            </div>
+        );
+    }
+}
+
+export default App;
+```
+
+Finally, we'll create the entry point js that we deleted earlier. Create the file `index.js` in `/src/`:
+
+File `index.js`:
+```js
+import React from 'react';
+import ReactDOM from 'react-dom';
+import App from './App';
+
+ReactDOM.render(
+    <App />,
+    document.getElementById('root')
+);
+```
+
+Now try running the application with:
+
+```bash
+npm start
+```
+
+... and your browser should be opened on location `http://localhost:3000`. You will be able to see the application, but of course, without styling yet. 
