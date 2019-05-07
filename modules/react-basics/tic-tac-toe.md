@@ -1,5 +1,7 @@
 # Tic Tac Toe Game
 
+When the total markup is relatively small, we can create non react test markup first before converting it to an actual react application.
+
 ## Creating the Board
 
 Let's first write some dummy markup for now so we can better visualize what we're about to do:
@@ -90,7 +92,33 @@ Check your page and weirdly enough, not much seems to change.
 
 ### Understanding Displays in CSS
 
-This is because the parent is displaying objects in `block` which is the default way an element is displayed.
+This is because the parent is displaying objects in `block` or `inline` which is the default way an element is displayed. With this, HTML treats any whitespace between elements as actual space between them. That is regardless if its an actual space or a new line.
+
+For Example, all the following markup will result in a space between the elements:
+
+```html
+<div style="display: inline">
+    <button>Dummy Button</button>
+    Dummy Text
+</div>
+
+<div style="display: block ">
+    <button>Dummy Button</button>
+    Dummy Text
+</div>
+
+<div style="display: block ">
+    <button>Dummy Button</button> Dummy Text
+</div>
+
+<div style="display: block ">
+    <button>Dummy Button</button>       Dummy Text
+</div>
+```
+
+But if you remove the space and forcefully "stick" the elements together, we could achieve the "sticking" effect that we wanted.
+
+#### Display: Block Sample
 
 Let's change that by adding:
 
@@ -146,7 +174,23 @@ Test it in the browser and you should see that our boxes are broken:
 
 ![Broken tic tac toe](/img/tic-tac-toe-prog3.png)
 
-This is caused by `vertical-align: baseline;` which is the default vertical align of elements. Notice that the "base" of the other buttons are trying to align at the center of the text of the button(s). This is the effect of baseline in this case. To fix this, instead of the baseline, we tell the buttons to align itself with the `middle` like so:
+This is caused by `vertical-align: baseline;` which is the default vertical align of elements. Notice that the "base" of the other buttons are trying to align at the center of the text of the button(s). This is the effect of baseline in this case. 
+
+We can experiment further by testing how empty and non empty buttons work when displayed beside text while in `vertical-align: baseline`:
+
+```html
+<button class="button">X</button>
+<button class="button"></button>
+Test Text  
+```
+
+This should output something like:
+
+![Effect of Vertical Align: Baseline](/img/baseline-valign.PNG)
+
+We can conclude with this test that if a button does not have content, the "base" of that button will align to any text existing in the same line. On the other hand, if the button has text content as well, it will try to align its text content's "base" to the text of the other elements (or no elements, just text).
+
+To fix this, instead of aligining texts and buttons by their "base" with the `baseline` value of `vertical-align`, we tell the buttons to align itself with the `middle` like so:
 
 ```css
 .square {
