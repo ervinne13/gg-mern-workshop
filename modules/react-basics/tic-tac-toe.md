@@ -260,8 +260,14 @@ import React from 'react';
 import Square from './Square';
 
 class Board extends React.Component {
-    renderSquare(i) {
-        return <Square />;
+    renderRow(key) {
+        return (
+            <div className="board-row" key={key} >
+                <Square />
+                <Square />
+                <Square />
+            </div>
+        );
     }
 
     render() {
@@ -270,28 +276,15 @@ class Board extends React.Component {
         return (
             <div>
                 <div className="status">{status}</div>
-                <div className="board-row">
-                    <Square />
-                    <Square />
-                    <Square />
-                </div>
-                <div className="board-row">
-                    <Square />
-                    <Square />
-                    <Square />
-                </div>
-                <div className="board-row">
-                    <Square />
-                    <Square />
-                    <Square />
-                </div>
+                {this.renderRow(0)}
+                {this.renderRow(1)}
+                {this.renderRow(2)}
             </div>
         );
     }
 }
 
 export default Board;
-
 ```
 
 Create our app or entry point component which we will be adding some mark up as well later by creating a new file `App.jsx` in the `/src/` folder.
@@ -337,3 +330,74 @@ npm start
 ```
 
 ... and your browser should be opened on location `http://localhost:3000`. You will be able to see the application, but of course, without styling yet. 
+
+### Adding a Global Styling in React
+
+This is pretty simple and would follow what we've learned on webpack earlier.
+
+Create a new file `index.css` in  `/src/` with the contents of our work on testing the styles earlier:
+
+File `index.css`:
+```css
+.board-row {
+    display: table;
+}
+
+.square {
+    background: #fff;
+    border: 1px solid #999;    
+    height: 34px;
+    width: 34px;
+
+    margin: -1px;    
+    padding: 0;
+
+    vertical-align: middle;
+}
+```
+
+... then let `index.js` import this file by adding:
+
+```js
+import './index.css';
+```
+
+... save and the page should automatically refresh applying our changes earlier.
+
+## Fixing Our Structure
+
+While our application may be small, cramming everything in the `/src/` folder looked ugly. What if we wanted to add some services later? Adding them again in the same folder will make a mess. To remedy this, move all the components to a new `/src/components/` folder and update the reference to `App.jsx` in `index.js` from `./App` to `./components/App`.
+
+When you do changes in directory, webpack's watcher may not be able to detect the changes right away. Restart the server by pressing `Ctrl`+`C` in the terminal where you ran `npm start` and run it again.
+
+## Passing Data Through Props
+
+Let's enable marking squares by adding the ability to set it in each square through setting `props`.
+
+Update the `Square.jsx`'s render method by adding the `{ this.props.markedBy }`.
+
+```jsx
+render() {
+    return (
+        <button className="square">
+            { this.props.markedBy }
+        </button>
+    );
+}
+```
+
+Experiment a bit and update any `Square` in the `Board` and add `markedBy="X"` and `markedBy="O"`.
+
+In the `render` function of `Board.jsx`:
+
+```jsx
+renderRow(key) {
+    return (
+        <div className="board-row" key={key} >
+            <Square markedBy="X" />
+            <Square markedBy="O" />
+            <Square />
+        </div>
+    );
+}
+```
