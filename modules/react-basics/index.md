@@ -35,3 +35,9 @@ See your project in action in the URL specified in your terminal. For example: `
 Before getting our feet wet, let's first discuss about React's weird syntax called `JSX`.
 
 [Click here to view the lesson](/modules/react-basics/jsx.md)
+
+## Quick & Dirty Learning
+
+We'll be familiarizing ourselves with React development by actually developing a simple tic tac toe game.
+
+[Click here to view the lesson](/modules/react-basics/tic-tac-toe.md)
