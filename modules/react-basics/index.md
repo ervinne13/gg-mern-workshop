@@ -57,3 +57,9 @@ Components let you split the UI into independent, reusable pieces, and think abo
 React components manages their own states, state changes, goes through a series of functions triggered inside a component - its lifecycle
 
 [Click here to view the lesson](/modules/react-basics/state-and-lifecycle.md)
+
+### Handling Events
+
+Know about similarities and differences on how events are handled with React elements:
+
+[Click here to view the lesson](/modules/react-basics/handling-events.md)
