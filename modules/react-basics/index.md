@@ -63,3 +63,9 @@ React components manages their own states, state changes, goes through a series 
 Know about similarities and differences on how events are handled with React elements:
 
 [Click here to view the lesson](/modules/react-basics/handling-events.md)
+
+### Conditional Rendering
+
+In React, you can create distinct components that encapsulate behavior you need. Then, you can render only some of them, depending on the state of your application.
+
+[Click here to view the lesson](/modules/react-basics/conditional-rendering.md)
