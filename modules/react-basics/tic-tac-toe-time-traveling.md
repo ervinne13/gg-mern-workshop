@@ -292,3 +292,12 @@ class App extends React.Component {
 
 export default App;
 ```
+
+Try it in the browser and you'll see that you may now time
+travel in each move.
+
+## Resolving a Bug
+
+There's a bug in what we did though. Try playing the game until a mark wins, then reset to any state. You'll notice that you can't add any marks anymore.
+
+The issue is that `Board` is testing for `this.state.winner` which is already set before. What we can do is replace the test `this.state.winner != null` in line 21 to `checkSquareMarksAndGetWinner(squareMarks) != null` to always check for a winner.
