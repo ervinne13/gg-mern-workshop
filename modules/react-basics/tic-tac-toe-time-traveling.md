@@ -184,3 +184,111 @@ const BoardStatus = ({ nextPlayer, winner }) => (
 
 export default Board;
 ```
+
+## Displaying Moves
+
+Let's create a new component called `MoveHistory` in `/src/components` with the contents:
+
+```jsx
+import React from 'react';
+
+const MoveHistory = ({ moves, onGoToMoveIndex }) => {    
+    const moveIndices = Array.from(moves.keys());
+    return (
+        <ul>
+            {   
+                moveIndices.map(index => 
+                    <li key={ index }>
+                        <MoveButton 
+                            moveIndex={ index } 
+                            onClick={ () => onGoToMoveIndex(index) } 
+                            />
+                    </li>
+                    ) 
+            }
+        </ul>
+    );
+};
+
+const MoveButton = ({ moveIndex, onClick }) => (
+    <button key={ moveIndex } onClick={ () => onClick() }>
+        { moveIndex > 0 ? `Go to move ${moveIndex}` : 'Reset Game' }
+    </button>
+);
+
+export default MoveHistory;
+```
+
+In this component, we are displaying buttons for each state the board is in. We are exposing a property function onGoToMoveIndex that is triggered each time any button is clicked.
+
+Update `App.js`'s `render` function to display the move history inside `.game-info`:
+
+```jsx
+    <div className="game">
+        <div className="game-board">
+            <Board squareMarks={ latestState.squareMarks } onSquareMarked={ squareMarks => this.onSquareMarked(squareMarks) } />
+        </div>
+        <div className="game-info">                    
+            <MoveHistory moves={ history } onGoToMoveIndex={ index => this.onGoToMoveIndex(index) } />
+        </div>
+    </div>
+```
+
+... and finally, add the `onGoToMoveIndex` that will rever the state to the index given:
+
+```jsx
+    onGoToMoveIndex(index) {
+        const history = this.state.history.slice(0, index + 1);
+        this.setState({ history });
+    }
+```
+
+__`App.js` Result:__
+
+```jsx
+import React from 'react';
+import Board from 'Components/Board';
+import MoveHistory from 'Components/MoveHistory';
+
+class App extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            history: [
+                { squareMarks: Array(9).fill(null) }
+            ],
+        };
+    }    
+
+    onSquareMarked(squareMarks) {
+        let history = this.state.history;
+        history.push({ squareMarks });
+        this.setState({ history });
+
+        console.log(history);
+    }
+
+    onGoToMoveIndex(index) {
+        const history = this.state.history.slice(0, index + 1);
+        this.setState({ history });
+    }
+
+    render() {
+        const history = this.state.history;
+        const latestState = history[history.length - 1];
+
+        return (
+            <div className="game">
+                <div className="game-board">
+                    <Board squareMarks={ latestState.squareMarks } onSquareMarked={ squareMarks => this.onSquareMarked(squareMarks) } />
+                </div>
+                <div className="game-info">                    
+                    <MoveHistory moves={ history } onGoToMoveIndex={ index => this.onGoToMoveIndex(index) } />
+                </div>
+            </div>
+        );
+    }
+}
+
+export default App;
+```
