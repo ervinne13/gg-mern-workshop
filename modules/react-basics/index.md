@@ -41,3 +41,19 @@ Before getting our feet wet, let's first discuss about React's weird syntax call
 We'll be familiarizing ourselves with React development by actually developing a simple tic tac toe game.
 
 [Click here to view the lesson](/modules/react-basics/tic-tac-toe.md)
+
+## Review and Remastery
+
+After developing our first React application. Let's revisit the concepts for mastery
+
+### Components & Props
+
+Components let you split the UI into independent, reusable pieces, and think about each piece in isolation. This page provides an introduction to the idea of components.
+
+[Click here to view the lesson](/modules/react-basics/components-and-props.md)
+
+### State & Lifecycle
+
+React components manages their own states, state changes, goes through a series of functions triggered inside a component - its lifecycle
+
+[Click here to view the lesson](/modules/react-basics/state-and-lifecycle.md)
