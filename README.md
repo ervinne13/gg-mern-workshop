@@ -70,20 +70,20 @@ npm install -g create-react-app
 
 ### React
 - 04 [Atomic Design]()
-- 05 [React Basics]()
-- 06 [Ejection From "Create React App" & Introduction to Webpack]()
+- 05 [React Basics](/modules/react-basics/index.md)
+- 06 [Builds & Basic Deployment](/modules/react-deployment/react-builds.md)
+- 06 [Ejection From "Create React App" & Introduction to Webpack](/modules/react-advanced/eject.md)
 - 07 [React + Redux]()
-- 08 [Common Recommended Practices in React]()
 
 ### Backend
-- 09 [NodeJS & Express]()
-- 10 [Other Frameworks for NodeJS]()
-- 11 [RESTful API Development & Best Practices]()
-- 12 [NoSQL Databases & Options (Serverless & Traditional)](/modules/nosql-dbs.md)
+- 08 [NodeJS & Express]()
+- 09 [Other Frameworks for NodeJS]()
+- 10 [RESTful API Development & Best Practices]()
+- 11 [NoSQL Databases & Options (Serverless & Traditional)](/modules/nosql-dbs.md)
 
 ### Advanced
-- 13 [Deploying Node/React Based Apps to VPS](/modules/react-deployment.md)
-- 14 [HTTPS and Basic Security Configuration with NGINX]()
-- 15 [Design Patterns in JavaScript]()
-- 16 [Common Best Practices]()
-- 17 [Choosing a Structure/Architecture]()
+- 12 [Deploying Node/React Based Apps to VPS](/modules/react-deployment.md)
+- 13 [HTTPS and Basic Security Configuration with NGINX]()
+- 14 [Design Patterns in JavaScript]()
+- 15 [Common Best Practices]()
+- 16 [Choosing a Structure/Architecture]()
