@@ -104,17 +104,15 @@ Finally, update `app.js` to make use of the two new files:
 File: `app.js`
 
 ```js
-import './js/foo';
-import './js/bar';
+const Bar = require('./js/bar');
+const Foo = require('./js/foo');
 
-const App = (function() {
-    const render = () => {
-        const markup = Foo.getMarkup() + Bar.getMarkup();
-        document.getElementById('root').innerHTML = markup;
-    };
-
-    return { render };
-})();
+const App = {
+    render: () => {
+        const markup = "Test" + Foo.getMarkup() + Bar.getMarkup();
+        document.getElementById('root').innerHTML = markup;        
+    }
+};
 
 App.render();
 ```
