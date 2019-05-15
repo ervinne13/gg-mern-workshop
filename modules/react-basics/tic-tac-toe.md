@@ -709,7 +709,7 @@ class Board extends React.Component {
         super(props);
         this.state = {
             squareMarks: Array(9).fill(null),
-            nextPlayer: null
+            nextPlayer: this.getNextPlayer()
         };
     }
     //...
@@ -719,7 +719,7 @@ Then we introduce a new function get the next player depending on what is curren
 
 ```jsx
     getNextPlayer() {
-        return this.state && this.state.nextPlayer === "O" ? "X" : "O";
+        return this.state && this.state.nextPlayer === "X" ? "O" : "X";
     }
 ```
 
