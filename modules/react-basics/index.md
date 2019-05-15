@@ -69,3 +69,11 @@ Know about similarities and differences on how events are handled with React ele
 In React, you can create distinct components that encapsulate behavior you need. Then, you can render only some of them, depending on the state of your application.
 
 [Click here to view the lesson](/modules/react-basics/conditional-rendering.md)
+
+### Forms & Inputs
+
+HTML form elements work a little bit differently from other DOM elements in React, because form elements naturally keep some internal state.
+
+In this part of the workshop, we'll also learn two ways of handling input, controlled and uncontrolled.
+
+[Click here to view the lesson](/modules/react-basics/forms-and-input.md)
