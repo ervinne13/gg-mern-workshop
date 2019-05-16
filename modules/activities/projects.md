@@ -167,6 +167,11 @@ Firebase will then redirect you to a page with "Add Firebase SDK". It will displ
 
 File `config/firebase.js`:
 ```js
+import firebase from 'firebase/app';
+import 'firebase/firestore';
+import 'firebase/auth';
+
+//  taken from the "Add Firebase SDK" view in Firebase
 const firebaseConfig = {
     apiKey: "AIzaSyCV7ex-XVazjmyY6byEtusXlMrtW9HHMYU",
     authDomain: "worklogs-296f3.firebaseapp.com",
@@ -177,26 +182,14 @@ const firebaseConfig = {
     appId: "1:259099390987:web:bdf127ab685fc0b2"
 };
 
-export default firebaseConfig;
+firebase.initializeApp(firebaseConfig);
+
+export default firebase;
 ```
 
 Note: you don't have to worry about the `apiKey` being exposed in the front end, it's natural to be exposed, otherwise we won't have any way to connect to our database. We can secure our firebase database later on with rules.
 
-Let's create a folder dedicated for persistence and add in firebase in there. Create a folder `src/Persistence` and a file called `Firebase.js` inside it. Add the following content to the new file:
-
-File `src/Persistence/Firebase.js`
-```js
-import firebase from 'firebase/app';
-import 'firebase/firestore';
-import 'firebase/auth';
-
-import config from 'config/firebase';
-
-firebase.initializeApp(config);
-firebase.firestore().settings({ timestampsInSnapshots: true});
-
-export default firebase;
-```
+We'll use this file later to configure our firebase instance.
 
 ## Firebase Firestore Basics
 
@@ -218,17 +211,83 @@ TODO
 
 We can actually just call some APIs to firebase to read and write data. A better way to do it in react would be to make use of the libraries we installed earlier: `react-redux-firebase` and `redux-firestore`.
 
-Update your index.js file and add the following imports:
+First, to better organize things, create a new file called `rootStoreEnhancer.js` inside the `src/Redux` folder which will contain our middelware. Then apply the following content:
 
-```jsx
-import { getFirestore } from 'redux-firestore';
-import { getFirebase } from 'react-redux-firebase';
+File `src/Redux/rootStoreEnhancer.js`:
+```js
+import { applyMiddleware, compose } from 'redux';
+import thunk from 'redux-thunk';
+
+import { reduxFirestore, getFirestore } from 'redux-firestore';
+import { reactReduxFirebase, getFirebase } from 'react-redux-firebase';
+
+import firebase from 'config/firebase';
+
+const thunkMiddleware = thunk.withExtraArgument({ getFirebase, getFirestore });
+const composedMiddleware = compose(
+    applyMiddleware(thunkMiddleware),
+    reduxFirestore(firebase),
+    reactReduxFirebase(firebase)
+);
+
+export default composedMiddleware;
 ```
 
-... then modify your store creation to:
+There's a lot of things going on here, let's try to address them one by one.
+- What `withExtraArgument` does is add extra arguments passed to the function we feed in redux when we create action creators.
+- `compose` is just like `combineReducers`, we combine multiple `"store enhancers"`.
+    - The function `applyMiddleware` actually returns a `store enhancer`.
+    - A `store enhancer` is a redux concept is an object that adds capabilities to a store, like enabling middleware.
+    - In `reduxFirestore`'s and `reactReduxFirebase`'s case, we are enhancing the store in such a way that we tell any firebase middleware to have the same configuration as what we passed to these functions.
+    - You may read more about store enhancers here: [click here](https://read.reduxbook.com/markdown/part1/05-middleware-and-enhancers.html)
 
-```jsx
-const store = createStore(rootReducer, applyMiddleware(thunk.withExtraArgument(getFirebase, getFirestore)));
+You may then update the `index.js` file to use the `rootStoreEnhancer` instead of manually creating one via `applyMiddleware` like so:
+
+```js
+//  ...
+import rootStoreEnhancer from 'Redux/rootStoreEnhancer';
+//  ...
+
+const store = createStore(rootReducer, rootStoreEnhancer);
+
 ```
 
-What `withExtraArgument` does is add extra arguments passed to the function we feed in redux when we create action creators.
+With redux store configured with firebase, we can then modify our action creators like so:
+
+```js
+export const createProject = (project) => {
+    return (dispatch, getState, { getFirebase, getFirestore }) => {
+        
+        //  we may now use firebase functionality as destructured above in the params
+
+        dispatch({ type: 'CREATE_PROJECT', project });
+    };
+};
+```
+
+## Using Firebase/Firestore to Store Data
+
+TODO
+
+## Synchronizing Data from Firestore
+
+To get data from firestore, let's first register a reducer provided by the `redux-firestore` library, add this to your `rootReducer`.
+
+File `src/Redux/rootReducer`:
+```js
+import authReducer from 'Features/Auth/Redux/authReducer';
+import projectReducer from 'Features/Projects/Redux/projectReducer';
+import { firestoreReducer } from 'redux-firestore'; // add import
+import { combineReducers } from 'redux';
+
+const rootReducer = combineReducers({
+    authReducer,
+    projectReducer,
+    firestoreReducer    //  register
+});
+
+export default rootReducer;
+```
+
+... then, connect your component container to the firestoreReducer:
+
