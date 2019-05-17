@@ -13,6 +13,8 @@ Importing libraries we'll need later:
 ```bash
 cd projects
 npm install react-router-dom redux react-redux redux-thunk firebase react-redux-firebase redux-firestore
+
+npm install react-router-dom redux react-redux redux-thunk
 ```
 
 ## Cleaning Up
