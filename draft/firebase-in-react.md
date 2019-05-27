@@ -2,6 +2,12 @@
 
 To start, sign up on the official Firebase website [click here](https://firebase.google.com/). After you have created a Firebase account, you should be able to create projects and be granted access to the project dashboard.
 
+```bash
+npm install -g firebase-tools
+```
+
+TODO: research Firebase CLI authentication method to use for our own products.
+
 ## Step 1
 
 Before doing anything in firebase, let's install firebase to our app so that we can work on creating the project while it's installing:

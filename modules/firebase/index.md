@@ -57,3 +57,16 @@ firebase deploy
 ```
 
 Which will upload and give you a url where you may now access your application.
+
+## Creating your First Firestore
+
+TODO
+
+## Optimistic Updates / Latency Compensation
+
+When you've set up `onSnapshot` to a document and tried to do updates to that document. Firebase does something called "Optimistic updates" or "Latency compensation".
+
+In your test application, open up the developer tools by pressing `f12`. In the `Network` tab, click on "No throttling" and change it to "Slow 3g" to simulate a slow connection.
+
+Clear your network history if it's not cleared yet and watch while you do a change to your form.
+You should notice that 

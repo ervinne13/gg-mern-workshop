@@ -1,1 +1,0 @@
-# Implementing Firebase on Your React Apps

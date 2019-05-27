@@ -12,7 +12,7 @@ Importing libraries we'll need later:
 
 ```bash
 cd projects
-npm install react-router-dom redux react-redux redux-thunk
+npm install react-router-dom redux react-redux redux-thunk prop-types
 ```
 
 ## Cleaning Up
