@@ -72,18 +72,18 @@ npm install -g create-react-app
 - 04 [Atomic Design]()
 - 05 [React Basics](/modules/react-basics/index.md)
 - 06 [Builds & Basic Deployment](/modules/react-deployment/react-builds.md)
-- 06 [Ejection From "Create React App" & Introduction to Webpack](/modules/react-advanced/eject.md)
-- 07 [React + Redux]()
+- 07 [Ejection From "Create React App" & Introduction to Webpack](/modules/react-advanced/eject.md)
 
-### Backend
-- 08 [NodeJS & Express]()
-- 09 [Other Frameworks for NodeJS]()
-- 10 [RESTful API Development & Best Practices]()
-- 11 [NoSQL Databases & Options (Serverless & Traditional)](/modules/nosql-dbs.md)
+### Real World Development
 
-### Advanced
-- 12 [Deploying Node/React Based Apps to VPS](/modules/react-deployment.md)
-- 13 [HTTPS and Basic Security Configuration with NGINX]()
-- 14 [Design Patterns in JavaScript]()
-- 15 [Common Best Practices]()
-- 16 [Choosing a Structure/Architecture]()
+For this part of the session we'll be learning more through development of an application instead of just discussions.
+
+- 08 [Building the Application UI from XD (An application of atomic design)](/modules/todo/building-ui.md)
+- 09 [Adding Behavior With Redux](/modules/todo/redux.md)
+- 10 [Google Authentication with Firebase](/modules/todo/firebase-auth.md)
+- 11 [Persistence with Firestore](/modules/todo/firebase-persistence.md)
+
+### Remaking the Project with Express Backend 
+
+- 12 [NodeJS & Express]()
+- 13 [Building the APIs ReSTfully]()
