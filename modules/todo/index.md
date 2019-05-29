@@ -8,6 +8,7 @@ Iteration 1
 - Redux
 - Google Authentication
 - Firebase
+- Error Handling Strategies and React Error Boundaries
 
 Iteration 2
 - NodeJS & Express
