@@ -208,7 +208,7 @@ Let's display the buttons by updating our `buttons.js` storybook file:
 ```jsx
 import React from 'react';
 import { storiesOf } from '@storybook/react';
-import BorderedButton from '../../src/App/Client/Common/Components/BorderedButton';BorderedButtonComponent';
+import BorderedButton from 'App/Client/Common/Components/BorderedButton';
 
 storiesOf('Bordered Button', module)
     .add('with plain text', () => (
@@ -221,9 +221,33 @@ storiesOf('Bordered Button', module)
     ))
 ```
 
-Notice that we're using a relative path of the component. This is because storybook is not covered by our CRA webpack, thus it will not load our components the same way that we can omit `/src/`.
+If you try to open this in storybook or just start the storybook, it's very likely that you'll encounter an error. If you do, that's because storybook does not know where to look for imports starting at `App/Client` etc.
 
-Now your storybook should look something like:
+We can tell storybook about it by adding a webpack config for it. Create the file `.storybook/webpack.config.js` with the contents:
+
+```js
+const path = require('path');
+
+module.exports = {
+    resolve: {
+        modules: [path.resolve(__dirname, "../src"), "node_modules"],
+    },
+    module: {
+        rules: [
+            {
+                test: /\.svg$/,
+                loader: 'raw-loader',
+                include: path.resolve(__dirname, '../')
+            }
+        ]
+    }
+   
+}
+```
+
+`resolve.modules` add `../src` to the folders that will be read by Storybook's Webpack and `module.rules` will add svg support which we will be needing later on.
+
+Restart your storybook and it should should look something like:
 
 ![Storybook 02](/img/storybook-02.png)
 
@@ -231,4 +255,229 @@ Now your storybook should look something like:
 
 If you use Adobe XD, you can select icons that we've imported there and export them as SVG. We can then use them in our application.
 
-Create a new folder `App/Client/Features/Landing/GoogleLoginButton` and paste the svg icon there
+Create a new folder `App/Client/Features/Landing/GoogleLoginButton` and paste the svg icon there. In the same folder, create the component `GoogleLoginButtonComponent.jsx` and the directory descriptor similar to what we did before.
+
+File `GoogleLoginButtonComponent.jsx`:
+```jsx
+import React from 'react';
+import BorderedButton from 'App/Client/Common/Components/BorderedButton';
+import { ReactComponent as Logo } from './google-icon.svg';
+import './style.css';
+
+const GoogleLoginButton = () => (
+    <BorderedButton size="large" className="google-auth-button" onClick={() => handleGoogleAuthentication()}>
+        Sign In with Google <Logo />
+    </BorderedButton>
+);
+
+const handleGoogleAuthentication = () => {
+    console.log('Pending Feature :)');
+};
+
+export default GoogleLoginButton;
+```
+
+File `style.css`
+
+```css
+.google-auth-button svg {
+    vertical-align: middle;
+    margin-left: 10px;
+    height: 16px;
+    width: 16px;    
+}
+
+.google-auth-button {    
+    min-width: 30%;
+}
+```
+
+Present the component in the Storybook by adding:
+```jsx
+.add('google login', () => (
+        <GoogleLoginButton size="large" />
+    ), {
+        info: {
+            text: "Try resizing the container, this button's width is 30% of the parent"
+        }
+    })
+```
+
+## Adding a Primary Button
+
+We can just create a new component called `PrimaryButton` to implement this but you should notice that it's functionality is pretty much the same as the `BorderedButton`.
+We will be repeating code if we did that.
+
+What we can do instead is refactor. Change `BorderedButton` into something more generic and parameterize the style. The property `style` is reserved though so we can use something like fill="border|background" instead.
+
+### Refactoring `BorderedButton`
+
+Create a new component `App/Client/Common/Components/Button/ButtonComponent` with the content:
+
+```jsx
+import React from 'react';
+import PropTypes from 'prop-types';
+import './style.css';
+
+const Button = ({ children, fill, size, className, ...props }) => (
+    <button className={`gg-button fill-${fill} -color-main -size-${size} ${className}`} {...props}>
+        {children}
+    </button>
+);
+
+Button.defaultProps = {
+    size: 'regular',
+    className: '',
+};
+
+Button.propTypes = {
+    children: PropTypes.node.isRequired,
+    fill: PropTypes.oneOf(['border', 'background']),
+    size: PropTypes.oneOf(['regular', 'large']),
+};
+
+export default Button;
+```
+
+Its `style.css` should be:
+```css
+
+button.fill-border.-color-main {
+    border: 2px solid #F28123;
+    border-radius: 6px;
+    background: white;
+
+    padding: 8px;    
+}
+
+button.fill-border.-large {
+    padding: 14px;
+}
+
+button.fill-border.-color-main:active {
+    background: whitesmoke;
+    border: 2px solid #DF6E11;
+    outline: none;
+}
+
+button.fill-border:focus {    
+    outline: none;
+}
+```
+
+Update your Storybook file `buttons.js` to use `Button` instead of `BorderedButton`:
+
+```jsx
+import React from 'react';
+import { storiesOf } from '@storybook/react';
+import Button from 'App/Client/Common/Components/Button';
+import GoogleLoginButton from 'App/Client/Features/Landing/GoogleLoginButton';
+
+storiesOf('Button', module)
+    .add('bordered with plain text', () => (
+        <Button fill="border">Hi I'm Bordered Button</Button>
+    ))
+    .add('bordered size = large', () => (
+        <Button fill="border" size="large">Hi I'm Bordered Button</Button>
+    ))
+    .add('bordered with on click', () => (
+        <Button fill="border" onClick={() => alert('do something here')}>
+            Click Me!
+        </Button>
+    ))
+    .add('google login', () => (
+        <GoogleLoginButton size="large" />
+    ), {
+        info: {
+            text: "Try resizing the container, this button's width is 30% of the parent"
+        }
+    })
+```
+
+Then update `GoogleLoginButton` to ditch `BorderedButton` as well.
+
+```jsx
+import React from 'react';
+import Button from 'App/Client/Common/Components/Button';
+import { ReactComponent as Logo } from './google-icon.svg';
+import './style.css';
+
+const GoogleLoginButton = () => (
+    <Button fill="border" size="large" className="google-auth-button" onClick={() => handleGoogleAuthentication()}>
+        Sign In with Google <Logo />
+    </Button>
+);
+
+const handleGoogleAuthentication = () => {
+    console.log('Pending Feature :)');
+};
+
+export default GoogleLoginButton;
+```
+
+And finally, delete the `App/Client/Common/Components/BorderedButton`. We should be able to achieve the same results.
+
+### Implementing fill="background"
+
+Let's update our `buttons.js` Storybook file and add the following:
+
+```jsx
+.add('primary button', () => (
+        <Button fill="background">Primary Filled Button</Button>
+    ))
+```
+
+This will then add an unstyled button in our Storybook. Let's also refactor our CSS so that the generic styles are put to the new class `.gg-button` we introduced earlier
+
+```css
+
+button.gg-button.-size-regular {
+    border-radius: 6px;
+    padding: 8px;
+}
+
+button.gg-button.-size-large {
+    border-radius: 4px;
+    font-weight: bold;
+    padding-top: 14px;
+    padding-bottom: 14px;
+    padding-left: 20px;
+    padding-right: 20px;
+    outline: none;
+}
+
+button.gg-button:focus, button.gg-button:active{
+    outline: none;
+}
+
+button.gg-button.-color-main:active {
+    color: white;
+    background: #DF6E11;
+    border: 2px solid #DF6E11;
+}
+
+button.fill-border.-color-main {
+    border: 2px solid #F28123;    
+    background: white;    
+}
+
+button.fill-background.-color-main {    
+    color: white;
+    border: 2px solid #F28123;
+    background: #F28123;
+
+    -webkit-box-shadow: none;
+	-moz-box-shadow: none;
+	box-shadow: none;
+}
+```
+
+We can also add some defaults to the button so that if we don't specify a fill, it will default to "background":
+
+```js
+Button.defaultProps = {
+    fill: 'background',
+    size: 'regular',
+    className: '',
+};
+```
