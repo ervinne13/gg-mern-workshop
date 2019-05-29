@@ -40,7 +40,24 @@ For this specific project, create the following folders from the `src` folder:
 - App/Client/Features/Landing
 - App/Client/Features/Calendar
 - App/Client/Features/Tasks
+- App/Client/Features/Palette
 
-The folders `Common` and `Feature/ErrorHandling` are folders that will almost always be in your new projects moving forward.
+The folders `Common`, `Features/Palette` and `Features/ErrorHandling` are folders that will almost always be in your new projects moving forward.
+
+### Common Folder
 
 Folder `App/Client/Common` will house anything that's ambiguous. In general, you SHOULD AVOID adding things in this folder as much as you can. Whatever you're doing should fall under a `Feature` and should be unambiguous. In the real world though, there are really cases that this is not possible. We'll be discussing things that will likely be placed here but most of the time, it's custom `PropTypes` that are too general, we'll discuss this in detail when we get to "Protecting Components with PropTypes".
+
+### Features
+
+We've mentioned that we will be using a modified "ducks" structure. Our client structure will revolve around "Features". These are literal features in our application. A feature can then have folders like "Components", "Redux", "Scenes" etc. inside instead of exposing these functional specifications right at the root of our application. This will ensure (force) better reusability in our components by forcing them to be isolated and work on its own with minimal to no dependencies outside its intended "Feature"
+
+### Palette
+
+This is the reason why we learned atomic design earlier. Before doing anything functional, we will write our components as small as whatever's reasonable and slap it in the "Palette" (as in literally a painter's palette). Remember "Thinking in React" and "Atomic Design"? we will write our components small first, then "stitch" them later on when creating our actual "scenes" instead of trying to make everything per page/scene.
+
+This will ensure (force) component decoupling and avoid spaghetti code and akward dependencies between components and scenes later on.
+
+### ErrorHandling
+
+This is pretty much self explanatory. All error handling will go here. This will also include pages like 404 and 500. We will be diving here further when we get to "Error Handling Strategies and React Error Boundaries".
