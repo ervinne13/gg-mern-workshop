@@ -13,3 +13,15 @@ To start, let's install yup:
 ```bash
 npm install yup
 ```
+
+## Basic Validation
+
+// TODO
+
+## Limitations
+
+There are times where isomorphic code just isnt possible anymore. Consider a case scenario where you have to validate a record, but the validation logic is dependent on other records as well. This will introduce a divide in your code as if you validate in the frontend, you have to query those required records via AJAX but in the backend, you must get it straight from the source.
+
+## Workaround
+
+In order to work around this, we will be introducing the concept of "dependency inversion". We will do this the functional way through the use of higher order functions.
