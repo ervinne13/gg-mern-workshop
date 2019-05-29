@@ -40,7 +40,6 @@ For this specific project, create the following folders from the `src` folder:
 - App/Client/Features/Landing
 - App/Client/Features/Calendar
 - App/Client/Features/Tasks
-- App/Client/Features/Palette
 
 The folders `Common`, `Features/Palette` and `Features/ErrorHandling` are folders that will almost always be in your new projects moving forward.
 
@@ -51,12 +50,6 @@ Folder `App/Client/Common` will house anything that's ambiguous. In general, you
 ### Features
 
 We've mentioned that we will be using a modified "ducks" structure. Our client structure will revolve around "Features". These are literal features in our application. A feature can then have folders like "Components", "Redux", "Scenes" etc. inside instead of exposing these functional specifications right at the root of our application. This will ensure (force) better reusability in our components by forcing them to be isolated and work on its own with minimal to no dependencies outside its intended "Feature"
-
-### Palette
-
-This is the reason why we learned atomic design earlier. Before doing anything functional, we will write our components as small as whatever's reasonable and slap it in the "Palette" (as in literally a painter's palette). Remember "Thinking in React" and "Atomic Design"? we will write our components small first, then "stitch" them later on when creating our actual "scenes" instead of trying to make everything per page/scene.
-
-This will ensure (force) component decoupling and avoid spaghetti code and akward dependencies between components and scenes later on.
 
 ### ErrorHandling
 
@@ -85,6 +78,14 @@ import Button from 'App/Client/Common/Components/Button`;
 ```
 
 ... regardless of where you import.
+
+## Misplaced `index.css`
+
+Now that we can import from the root, let's move the `index.css` file from `src` to the `App/Client` where it belongs and update the `index.js` file's reference to it to:
+
+```js
+import 'App/Client/index.css';
+```
 
 ## Enabling Routing
 
