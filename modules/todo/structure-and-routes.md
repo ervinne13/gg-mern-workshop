@@ -61,3 +61,41 @@ This will ensure (force) component decoupling and avoid spaghetti code and akwar
 ### ErrorHandling
 
 This is pretty much self explanatory. All error handling will go here. This will also include pages like 404 and 500. We will be diving here further when we get to "Error Handling Strategies and React Error Boundaries".
+
+## Root Based Imports
+
+If there's one thing that's annoying in CRA's default setup, it's relative imports (../../ etc). We can get rid of this by creating a `jsconfig.json` file at the root directory of your project (beside `src` folder) with the contents:
+
+```json
+{
+    "compilerOptions": {
+        "jsx": "react", 
+        "baseUrl": "./src",
+        "paths": {
+            "/*": ["/*"]
+        }        
+    }
+}
+```
+
+... this will tell Webpack that our root folder is the `./src` right next to this file. The property `paths` is there to tell Webpack that everything within our root folder can be imported as is. Ex. importing a `Button` component inside  `App/Client/Common/Components` will be like:
+
+```jsx
+import Button from 'App/Client/Common/Components/Button`;
+```
+
+... regardless of where you import.
+
+## Enabling Routing
+
+We pretty much have 4 scenes in our application. A scene is a page in your app or website in general. They are responsible for:
+
+- Stitching together components
+- Joining components' behaviors to a more specific action that "Containers" may access (more on this in redux later)
+- Isolating data retrieval and persistence so components are more reusable
+
+To start, install 'react-dom-router' with:
+
+```bash
+npm install react-router-dom
+```
