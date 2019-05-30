@@ -85,9 +85,10 @@ File `TaskListPerDateScene.jsx`
 ```jsx
 import React from 'react';
 import { Grid, Row, Col } from 'react-flexbox-grid';
+import { Link } from 'react-router-dom';
+import Button from 'App/Client/Common/Components/Button';
 import VerticalDateNavigator from 'App/Client/Features/Calendar/Components/VerticalDateNavigator';
 import TaskList from 'App/Client/Features/Tasks/Components/TaskList';
-import Button from 'App/Client/Common/Components/Button';
 import './style.css';
 
 class TaskListPerDateScene extends React.Component {
@@ -101,7 +102,9 @@ class TaskListPerDateScene extends React.Component {
                     <Col sm={12} md={8}>
                         <div class="task-list-header">
                             <h1>Tasks</h1>
-                            <Button size="large">+ Create New</Button>
+                            <Link to="/tasks/create">
+                                <Button size="large">+ Create New</Button>
+                            </Link>
                         </div>
                         <TaskList tasks={demoData} />
                     </Col>
@@ -123,3 +126,40 @@ export default TaskListPerDateScene;
 Now your scene should look real:
 
 ![task list scene](/img/task-list-per-date-scene.png)
+
+## Stitching Task Form Per Date
+
+We'll be doing pretty much the same thing earlier but with different components.
+Update `TaskFormPerDateScene.jsx` file to:
+
+```jsx
+import React from 'react';
+import { Grid, Row, Col } from 'react-flexbox-grid';
+import VerticalDateNavigator from 'App/Client/Features/Calendar/Components/VerticalDateNavigator';
+import TaskForm from 'App/Client/Features/Tasks/Forms/Task';
+
+class TaskFormPerDateScene extends React.Component {
+    render() {
+        return (
+            <Grid>
+                <Row>
+                    <Col sm={12} md={4}>
+                        <VerticalDateNavigator selectedDate={new Date()} />
+                    </Col>
+                    <Col sm={12} md={8}>                        
+                        <TaskForm />
+                    </Col>
+                </Row>
+            </Grid>
+        );
+    }
+}
+
+export default TaskFormPerDateScene;
+```
+
+## Adding Behavior and Upper Level State Management
+
+Normally, if you're developing a website you can just make use of React Context ([documentation here](https://reactjs.org/docs/context.html)) but since we have data that can go to and from many places, deciding to use Redux in this case is not a bad idea.
+
+[Click here to navigate to next lesson](/modules/todo/applying-redux.md) discussing about how we can apply Redux.
