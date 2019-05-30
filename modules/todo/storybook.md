@@ -8,20 +8,94 @@ Open this [link](https://xd.adobe.com/view/cdc8394c-8a65-42ad-56af-3d559771ce3e-
 
 Follow along the instructor as he walks you through the XD file that contains the sample user interface. In summary, the components that we should be able to produce are the following:
 
-__Splash/Login Related__
+__Splash/Login Feature__
 - Logo & Title
 - Bordered Button
 
-__Calendar Related__
+__Calendar Feature__
 - Calendar Link Item
 - Vertical Date Navigator
 
-__TODO Related__
+__TODO/Tasks Feature__
 - Main Header
 - Primary Button
 - Task
 - Task Form
 - Confirm Delete Modal
+
+## State Shape Planning
+
+Now that we have the components, we have to determine the properties that such components should be given or maintain as a state of its own.
+
+### Calendar Feature State Shapes
+
+__`CalendarLinkItem`__
+
+![Calendar link item](/img/calendar-link-item.png)
+
+Both the day of week (Monday, Tuesday, etc.) and the day of month (1st, 2nd, 6th, etc) can be displayed by a single `Date` object so let's have that.
+
+As for the message (5 Tasks Open, No Tasks, etc.) let's just make this a free text where we can change the highlight.
+
+We'll also need to account for when this component is "selected" or highlighted so let's introduce an `isActive` property that just defautls to false.
+
+```js
+const props = {
+    taskHighlight: [String one of "primary"|"info"],
+    taskMessage: [String],
+    date: [Date],
+    isActive: [Boolean]
+};
+```
+
+__`VerticalDateNavigator`__
+
+![Vertical Date Navigator](/img/vertical-date-navigator.png)
+
+For the calendar feature, we'll obviously need some sort of array of dates. We can also integrate the some sort of "task summary" but integrating that directly would very likely make it difficult later on when we try to query.
+
+What we can do is let the `VerticalDateNavigator` component manage the dates itself and we just pass in an array of "task summary" objects that it can match against dates.
+
+So internally it would have something like:
+```js
+const internalState = {
+    referenceDate: [Date],
+    displayDateSet: [Array of Date]
+}
+```
+
+And as props:
+```js
+const props = {
+    selectedDate: [Date],
+    tasksSummary: [
+        {date: '2019-05-01',taskCount: 5,doneTaskCount: 0},
+        {date: '2019-05-02',taskCount: 0,doneTaskCount: 0},
+        {date: '2019-05-03',taskCount: 6,doneTaskCount: 3},
+        …  
+    ]
+};
+```
+
+Then we can just pre-process each `taskSummary` object before passing anything in the `CalendarLinkItem` 
+
+### ToDo/Tasks Feature State Shapes
+
+__`Task`__
+
+![Task](/img/task.png)
+
+A task can be "Open" or "Done" where the text is striked through. This is actually pretty easy, we just need a text to display about the task and its status:
+
+```js
+const props = {
+    text: [String],
+    status: [String one of "Open"|"Done"]
+};
+```
+
+The same props/state apply to the form.
+
 
 ## Creating the Palette through Storybook
 
@@ -123,7 +197,7 @@ import React from 'react';
 import './style.css';
 
 const BorderedButton = ({ children, ...props }) => (
-    <button className="bordered-button -color-main" { ...props }>
+    <button className="bordered-btn -color-main" { ...props }>
         {children}
     </button>
 );
@@ -134,21 +208,22 @@ export default BorderedButton;
 Create its style by creating a `style.css` file next to it with the contents
 
 ```css
-.bordered-button.-color-main {
+.bordered-btn.-color-main {
     border: 2px solid #F28123;
     border-radius: 6px;
     background: white;
 
     padding: 8px;
+    cursor: pointer;
 }
 
-.bordered-button.-color-main:active {
+.bordered-btn.-color-main:active {
     background: whitesmoke;
     border: 2px solid #DF6E11;
     outline: none;
 }
 
-.bordered-button.-color-main:focus {    
+.bordered-btn.-color-main:focus {    
     outline: none;
 }
 ```
@@ -179,6 +254,7 @@ import BorderedButton from 'App/Client/Common/Components/BorderedButton/Bordered
 
 First, install prop types with:
 
+(If you've already installed prop-types, you don't need to execute the script below)
 ```bash
 npm install prop-types
 ```
@@ -191,7 +267,7 @@ import PropTypes from 'prop-types';
 import './style.css';
 
 const BorderedButton = ({ children, ...props }) => (
-    <button className="bordered-button -color-main" { ...props }>
+    <button className="bordered-btn -color-main" { ...props }>
         {children}
     </button>
 );
@@ -257,7 +333,7 @@ Restart your storybook and it should should look something like:
 
 If you use Adobe XD, you can select icons that we've imported there and export them as SVG. We can then use them in our application.
 
-Create a new folder `App/Client/Features/Landing/GoogleLoginButton` and paste the svg icon there. In the same folder, create the component `GoogleLoginButtonComponent.jsx` and the directory descriptor similar to what we did before.
+Create a new folder `App/Client/Features/Landing/Components/GoogleLoginButton` and paste the svg icon there. In the same folder, create the component `GoogleLoginButtonComponent.jsx` and the directory descriptor similar to what we did before.
 
 File `GoogleLoginButtonComponent.jsx`:
 ```jsx
@@ -267,7 +343,7 @@ import { ReactComponent as Logo } from './google-icon.svg';
 import './style.css';
 
 const GoogleLoginButton = () => (
-    <BorderedButton size="large" className="google-auth-button" onClick={() => handleGoogleAuthentication()}>
+    <BorderedButton size="large" className="google-auth-btn" onClick={() => handleGoogleAuthentication()}>
         Sign In with Google <Logo />
     </BorderedButton>
 );
@@ -282,14 +358,14 @@ export default GoogleLoginButton;
 File `style.css`
 
 ```css
-.google-auth-button svg {
+.google-auth-btn svg {
     vertical-align: middle;
     margin-left: 10px;
     height: 16px;
     width: 16px;    
 }
 
-.google-auth-button {    
+.google-auth-btn {    
     min-width: 30%;
 }
 ```
@@ -322,7 +398,7 @@ import PropTypes from 'prop-types';
 import './style.css';
 
 const Button = ({ children, fill, size, className, ...props }) => (
-    <button className={`gg-button fill-${fill} -color-main -size-${size} ${className}`} {...props}>
+    <button className={`round-corner-btn fill-${fill} -color-main -size-${size} ${className}`} {...props}>
         {children}
     </button>
 );
@@ -349,7 +425,8 @@ button.fill-border.-color-main {
     border-radius: 6px;
     background: white;
 
-    padding: 8px;    
+    padding: 8px;
+    cursor: pointer;
 }
 
 button.fill-border.-large {
@@ -373,7 +450,7 @@ Update your Storybook file `buttons.js` to use `Button` instead of `BorderedButt
 import React from 'react';
 import { storiesOf } from '@storybook/react';
 import Button from 'App/Client/Common/Components/Button';
-import GoogleLoginButton from 'App/Client/Features/Landing/GoogleLoginButton';
+import GoogleLoginButton from 'App/Client/Features/Landing/Components/GoogleLoginButton';
 
 storiesOf('Button', module)
     .add('bordered with plain text', () => (
@@ -405,7 +482,7 @@ import { ReactComponent as Logo } from './google-icon.svg';
 import './style.css';
 
 const GoogleLoginButton = () => (
-    <Button fill="border" size="large" className="google-auth-button" onClick={() => handleGoogleAuthentication()}>
+    <Button fill="border" size="large" className="google-auth-btn" onClick={() => handleGoogleAuthentication()}>
         Sign In with Google <Logo />
     </Button>
 );
@@ -429,16 +506,16 @@ Let's update our `buttons.js` Storybook file and add the following:
     ))
 ```
 
-This will then add an unstyled button in our Storybook. Let's also refactor our CSS so that the generic styles are put to the new class `.gg-button` we introduced earlier
+This will then add an unstyled button in our Storybook. Let's also refactor our CSS so that the generic styles are put to the new class `.round-corner-btn` we introduced earlier
 
 ```css
 
-button.gg-button.-size-regular {
+button.round-corner-btn.-size-regular {
     border-radius: 6px;
     padding: 8px;
 }
 
-button.gg-button.-size-large {
+button.round-corner-btn.-size-large {
     border-radius: 4px;
     font-weight: bold;
     padding-top: 14px;
@@ -448,11 +525,11 @@ button.gg-button.-size-large {
     outline: none;
 }
 
-button.gg-button:focus, button.gg-button:active{
+button.round-corner-btn:focus, button.round-corner-btn:active{
     outline: none;
 }
 
-button.gg-button.-color-main:active {
+button.round-corner-btn.-color-main:active {
     color: white;
     background: #DF6E11;
     border: 2px solid #DF6E11;
@@ -484,6 +561,87 @@ Button.defaultProps = {
 };
 ```
 
+## Flat Buttons
+
+These are the buttons next to a task. We can't put this in the same `Button` component as this has less properties required. Create the component in `App/Client/Common/Components/FlatButton` and create the files:
+
+File `package.json`:
+```json
+{
+    "main": "./FlatButtonComponent.jsx"
+}
+```
+
+File `style.css`:
+```css
+
+button.round-corner-btn.-size-regular {
+    border-radius: 6px;
+    padding: 8px;
+}
+
+button.round-corner-btn.-size-large {
+    border-radius: 4px;
+    font-weight: bold;
+    padding-top: 14px;
+    padding-bottom: 14px;
+    padding-left: 20px;
+    padding-right: 20px;
+    outline: none;
+}
+
+button.round-corner-btn:focus, button.round-corner-btn:active{
+    outline: none;
+}
+
+button.round-corner-btn.-color-main:active {
+    color: white;
+    background: #DF6E11;
+    border: 2px solid #DF6E11;
+}
+
+button.fill-border.-color-main {
+    border: 2px solid #F28123;    
+    background: white;    
+}
+
+button.fill-background.-color-main {    
+    color: white;
+    border: 2px solid #F28123;
+    background: #F28123;
+
+    -webkit-box-shadow: none;
+	-moz-box-shadow: none;
+	box-shadow: none;
+}
+```
+
+File `FlatButtonComponent.jsx`:
+```jsx
+import React from 'react';
+import PropTypes from 'prop-types';
+import './style.css';
+
+const FlatButtonComponent = ({ children, type, ...props }) => (
+    <button className={`flat-btn -${type} -color-main`} {...props}>
+        {children}
+    </button>
+);
+
+FlatButtonComponent.defaultProps = {
+    type: 'primary'
+};
+
+FlatButtonComponent.propTypes = {
+    children: PropTypes.node.isRequired,
+    type: PropTypes.oneOf(['primary', 'info', 'danger', 'grey'])
+};
+
+export default FlatButtonComponent;
+```
+
+This button will only need a child node and the type.
+
 # Handling Composite Components
 
 Most of the time, you'll have to deal with components that can work as a unit and as a group to compose one more component. A good example of this is the `CalendarLinkItem` (unit) and the `VerticalDateNavigator` (composite) components.
@@ -500,6 +658,7 @@ __`VerticalDateNavigator`__
 
 You should notice that there are date formatting functionalities here. To make things easier for us, let's use the "Moment" library:
 
+(If you've already installed moment, you don't need to do the commadn below)
 ```bash
 npm install moment react-moment
 ```
@@ -691,7 +850,7 @@ Now we can update our `calendar.jsx` Storybook and add the `CalendarLinkItem` co
 
 ```jsx
 storiesOf('Calendar Link Item', module)
-    .addDecorator(storyFn => <div style={{ width: '400px', border: '1px solid black' }} children={storyFn()} />)
+    .addDecorator(storyFn => <div style={{ width: '400px', borderTop: '1px #7E7E7E solid', borderBottom: '1px #7E7E7E solid'  }} children={storyFn()} />)}} children={storyFn()} />)
     .add('using date object', () => (
         <CalendarLinkItem
             taskMessage="All Tasks Done"
@@ -811,19 +970,19 @@ File `style.css`
     margin: 0;
 }
 
-.navigation-button {
+.navigation-btn {
     border: none;
     background: inherit;
     width: 100%;
 }
 
-.navigation-button:active, 
-.navigation-button:focus {
+.navigation-btn:active, 
+.navigation-btn:focus {
     border: none;
     outline: none;
 }
 
-.navigation-button:active {
+.navigation-btn:active {
     background: rgb(238, 236, 236);    
 }
 ```
@@ -930,7 +1089,7 @@ class VerticalDateNavigatorComponent extends React.Component {
 }
 
 const Navigator = ({ direction, onClick }) => (
-    <button className="navigation-button" onClick={onClick} >
+    <button className="navigation-btn" onClick={onClick} >
         <Caret direction={direction} />
     </button>
 );
@@ -1096,4 +1255,507 @@ const mockTaskSummaryPerDateData = [
 ];
 ```
 
-We need to demostrate how a parent component can modify the `selectedDate` of the `VerticalDateNavigator`, so we created the `DemoVerticalDateNavigatorUser`. We currently have no efficient way to display this though other than copy and pasting it to the info text.
+We need to demostrate how a parent component can modify the `selectedDate` of the `VerticalDateNavigator`, so we created the `DemoVerticalDateNavigatorUser`. We currently have no efficient way to display this though other than copy and pasting it to the info text so let's direct the user instead to the code (this is intended for developers anyway).
+
+## ToDo Components: Task Item
+
+Create a new component (our usual set, (ComponentName)Component.jsx, package.json, and style.css) `App/Client/Features/Tasks/Components/Task` with the following files:
+
+File `package.json`:
+```json
+{
+    "main": "./TaskComponent.jsx"
+}
+```
+
+File `style.css`:
+```
+.task {
+    display: flex;
+    overflow: auto;
+    align-items: center;
+    justify-content: space-between
+}
+
+.task.-done > .task-text {
+    text-decoration: line-through;
+}
+```
+
+File `TaskComponent.jsx`:
+```jsx
+import React from 'react';
+import PropTypes from 'prop-types';
+import FlatButton from 'App/Client/Common/Components/FlatButton';
+import './style.css';
+
+class Task extends React.Component {
+
+    triggerRemove(task) {
+        if (this.props.onRemove) {
+            this.props.onRemove(task);
+        }
+    }
+
+    triggerToggle(task) {
+        if (this.props.onToggle) {
+            this.props.onToggle(task);
+        }
+    }
+
+    render() {
+        const { task } = this.props;
+        const isTaskOpen = task.status === 'open';
+        const toggleButtonClass = isTaskOpen ? 'grey' : 'info';
+        const toggleButtonText = isTaskOpen ? 'Open' : 'Done';
+
+        return (
+            <div className={`task -${task.status}`}>
+                <span className="task-text">{task.text}</span>
+                <span className="task-actions">
+                    <FlatButton type={toggleButtonClass} onClick={() => this.triggerToggle(task)}>{toggleButtonText}</FlatButton>
+                    <FlatButton type="danger" onClick={() => this.triggerRemove(task)}>Remove</FlatButton>
+                </span>
+            </div>
+        );
+    }
+}
+
+Task.propTypes = {
+    task: PropTypes.shape({
+        text: PropTypes.string,
+        status: PropTypes.oneOf(['open', 'done'])
+    }).isRequired
+};
+
+export default Task;
+```
+
+... and add the possible usage in the Storybook by creating a new story `tasks.jsx` and requiring it in the config:
+
+File `tasks.jsx`:
+```jsx
+import React from 'react';
+import { storiesOf } from '@storybook/react';
+import Task from 'App/Client/Features/Tasks/Components/Task';
+
+storiesOf('Tasks', module)
+    .addDecorator(storyFn => <div style={{ width: '600px', borderBottom: '1px solid #7E7E7E', borderTop: '1px solid #7E7E7E', margin: 'auto' }} children={storyFn()} />)
+    .add('default/open task', () => (
+        <Task task={{ text: 'Dentist appointment @ 2PM', status: 'open' }} />
+    ))
+    .add('one task', () => (
+        <Task task={{ text: 'Dentist appointment @ 2PM', status: 'done' }} />
+    ))
+    .add('on toggle open', () => (
+        <Task onToggle={task => alert(`Toggle task status: ${task.status}`)} task={{ text: 'Dentist appointment @ 2PM', status: 'open' }} />
+    ))
+    .add('on toggle done', () => (
+        <Task onToggle={task => alert(`Toggle task status: ${task.status}`)} task={{ text: 'Dentist appointment @ 2PM', status: 'done' }} />
+    ))
+    .add('on remove', () => (
+        <Task onRemove={task => alert(`Will delete task: ${task.text}`)} task={{ text: 'Dentist appointment @ 2PM', status: 'open' }} />
+    ))
+```
+
+Finally, let's create a task list component that will house multiple tasks and add border to each.
+
+Create a new component `App/Client/Features/Tasks/Components/TaskList` with the files:
+
+File `package.json`:
+```json
+{
+    "main": "./TaskListComponent.jsx"
+}
+```
+
+File `style.css`:
+```css
+.task {
+    display: flex;
+    overflow: auto;
+    align-items: center;
+    justify-content: space-between
+}
+
+.task.-done > .task-text {
+    text-decoration: line-through;
+}
+```
+
+File `TaskListComponent.jsx`:
+```jsx
+import React from 'react';
+import Task from 'App/Client/Features/Tasks/Components/Task';
+import './style.css';
+
+const TaskListComponent = ({ tasks, on }) => (
+    <ul className="task-list">        
+        {tasks.map(task => <li><Task task={task} /></li>)}
+    </ul>
+);
+
+export default TaskListComponent;
+```
+
+... then add the task list to the Storybook:
+
+```jsx
+storiesOf('Task List', module)
+    .add('mixed status', () => (
+        <TaskList tasks={demoTasks} />
+    ))
+;
+
+const demoTasks = [
+    { text: 'Meeting with client @ 10 AM', status: 'done' },
+    { text: 'Dentist appointment @ 2 PM', status: 'open' },
+    { text: 'Ask about PC problems before going home', status: 'open' },
+];
+```
+
+# Modals in React
+
+Here's one interesting component you'll likely have problems in the future. Implementing modals in React.
+
+Let's first create a `<Modal>` component by creating `App/Client/Common/Components/Modal` with the following files:
+
+File `package.json`:
+```json
+{
+    "main": "./ModalComponent.jsx"
+}
+```
+
+File `style.css`:
+```css
+.lite-modal-bg {
+    position: fixed;
+    top: 0;
+    left: 0;
+    padding: 10px;
+    background: rgba(0,0,0,0.5);
+    width: 100%;
+    height: 100%;
+    
+    display: none;
+    justify-content: center;
+    padding-top: 5%;
+}
+
+.lite-modal-bg.-active {
+    display: flex;
+    z-index: 9999;
+}
+
+.lite-modal-content {
+    background: #fff;
+    max-width: 685px;
+    width: 100%;    
+    position: relative;
+    padding: 0;
+}
+
+.lite-modal-exit {
+    color: #444;
+    display: inline-block;
+    height: 30px;
+    width: 30px;
+    padding: 0;    
+    outline: none;
+    background: transparent;
+    border: none;
+}
+
+.lite-modal-exit:hover {
+    background: #adadad;    
+}
+
+.lite-modal-btn-wrapper {
+    position: absolute;
+    top: 0;
+    right: 0;
+    height: 30px;
+    width: 30px;
+}
+```
+
+File `ModalComponent.jsx`
+```jsx
+import React from 'react';
+import PropTypes from 'prop-types';
+import './style.css';
+
+const Modal = ({ children, isOpen, onCloseModalRequested }) => (
+    <div className={`lite-modal-bg ${isOpen ? '-active' : ''}`}>
+        <div className="lite-modal-content">
+            <div className="lite-modal-btn-wrapper">
+                <button className="lite-modal-exit" onClick={onCloseModalRequested} >
+                    &times;
+                </button>
+            </div>
+            {children}
+        </div>
+    </div>
+);
+
+Modal.defaultProps = {
+    isOpen: false
+};
+
+Modal.propTypes = {
+    isOpen: PropTypes.bool
+};
+
+export default Modal;
+```
+
+This modal, however, cannot close by itself despite having a close button. It can only notify the parent that a close action is requested.
+
+This is because overwriting the props passed to a component is not a good practice as it will create confusion in your states in the long run.
+
+For ease of use, we can put the modal's open state on Redux.
+
+## Deletion Confirm
+
+Create this component in `App/Clients/Features/Tasks/Components/ConfirmDeletion` with the files:
+
+File `package.json`:
+```json
+{
+    "main": "./ConfirmDeletionComponent.jsx"
+}
+```
+
+File `style.css`:
+```css
+.confirm-deletion-prompt {    
+    text-align: center;
+    color: #707070;
+}
+
+.confirm-deletion-prompt .message {
+    margin-top: 60px;
+    margin-bottom: 40px;
+    margin-left: 20px;
+    margin-right: aut20pxo;
+}
+
+.confirm-deletion-prompt .actions {
+    display: flex;    
+}
+
+.confirm-deletion-prompt .actions button {
+    width: 50%;
+}
+```
+
+File `ConfirmDeletionComponent.jsx`:
+```
+import React from 'react';
+import FlatButton from 'App/Client/Common/Components/FlatButton';
+import './style.css';
+
+const ConfirmDeletionComponent = ({ onConfirm, onCancel }) => (
+    <div className="confirm-deletion-prompt">
+        <div className="message">
+            <h1>Are you sure you want to remove this task?</h1>
+            <p>This action cannot be undone</p>
+        </div>
+        <div className="actions">
+            <FlatButton type="danger" onClick={() => onConfirm()}>Remove</FlatButton>
+            <FlatButton type="grey" onClick={() => onCancel()}>Cancel</FlatButton>
+        </div>
+    </div>
+);
+
+export default ConfirmDeletionComponent;
+```
+
+Add this component to the Storybook with:
+
+```jsx
+storiesOf('Confirm Deletion', module)
+    .addDecorator(storyFn => <div style={{ width: '600px', margin: 'auto' }} children={storyFn()} />)
+    .add('ui only', () => (
+        <ConfirmDeletion />
+    ))
+    .add('inside modal', () => (
+        <Modal isOpen>
+            <ConfirmDeletion 
+                onConfirm={() => console.log('confirmed deletion')} 
+                onCancel={() => console.log('canceled deletion')} 
+                />
+        </Modal>
+    ))
+```
+
+## Implementing Task Input
+
+Now we have one last component to implement the large input element for writing the tasks. This component is just one element though. In cases such as these, you'll have to decide if it's really necessary to create a separate component for it at all. Here's your checklist:
+
+- Is the component a combination of multiple elements?
+- Can you extract a more specific functionality from this element?
+- Does the component have a set of configuration options that either change behavior or UI?
+
+If you answer yes in any of these, create a component to wrap the element. If not, go back to the UI/UX plan by one level and check the next component housing this candidate component against the same checklist.
+
+In this case, it seems that the input alone does not pass the checklist as we will only be using it as a plain input. We'll have to check the UI/UX plan and get the next candidate component which is the form that contains the input, which passes the checklist.
+
+Let's create our form in `App/Clients/Features/Tasks/Forms/Task` with the following files:
+
+File `package.json`
+```json
+{
+    "main": "./TaskForm.jsx"
+}
+```
+
+File `style.css`:
+```css
+
+.task-form {
+    overflow: auto;
+}
+
+.task-form h1 {
+    color: #707070;
+}
+
+#task-text-input {
+    margin-top: 20px;
+    margin-bottom: 30px;
+
+    font-size: 24px;
+
+    width: 100%;
+
+    border: 0;
+    outline: 0;
+    background: transparent;
+    border-bottom: 2px solid #707070;
+}
+
+.task-form button[type=submit] {
+    float: right;
+}
+```
+
+File `TaskForm.jsx`:
+```jsx
+import React from 'react';
+import PropTypes from 'prop-types';
+import Button from 'App/Client/Common/Components/Button';
+import './style.css'
+
+class TaskForm extends React.Component {
+    constructor(props) {
+        super(props);
+
+        const task = props.task ? props.task : { text: '', status: 'open' };
+        this.state = {
+            task,
+            errorMessage: '',
+            headerText: this.resolveHeaderText(task),
+            submitActionText: this.resolveSubmitActionText(task)
+        };
+    }
+
+    resolveHeaderText = (task) => {
+        const { id: taskId } = task;
+        if (taskId) {
+            return `Updating Task (${taskId})`;
+        } else {
+            return "Creating new Task";
+        }
+    }
+
+    resolveSubmitActionText = (task) => {
+        const { id: taskId } = task;
+        if (taskId) {
+            return `Update Task`;
+        } else {
+            return "Create Task";
+        }
+    }
+
+    onTextChange = (event) => {
+        const task = { ...this.state.task };
+        task.text = event.target.value;
+        this.setState({ task, errorMessage: '' });
+    }
+
+    triggerSaveTask = (event) => {
+        event.preventDefault();
+        if (!this.validateTask(this.state.task)) {
+            return;
+        }
+
+        if (this.props.onSaveTask) {
+            this.props.onSaveTask(this.state.task);
+        }
+    }
+
+    /**
+     * This normally belongs to a "Domain" object but since 
+     * it's alone (for now at least), let's leave this here
+     */
+    validateTask = (task) => {
+        const isTaskTextProvided = String(task.text).trim() !== '';
+
+        if (!isTaskTextProvided) {
+            this.setState({ errorMessage: "Task text is required!" });
+        }
+
+        return isTaskTextProvided;
+    }
+
+    render() {
+        const { headerText, submitActionText, errorMessage } = this.state;
+        return (
+            <form className="task-form" onSubmit={this.triggerSaveTask}>
+                <h1>{headerText}</h1>
+
+                <div className="task-text-input-wrapper">
+                    <input
+                        id="task-text-input"
+                        type="text"
+                        placeholder="Enter Task"
+                        value={this.state.task.text}
+                        onChange={this.onTextChange}
+                    />
+                </div>
+                <div className="task-text-error-wrapper">
+                    <label
+                        className="error-text"
+                        for="task-text-input">
+                        {errorMessage}
+                    </label>
+                </div>
+
+                <Button size="regular" type="submit">
+                    {submitActionText}
+                </Button>
+            </form>
+        );
+    }
+}
+
+TaskForm.propTypes = {
+    task: PropTypes.shape({
+        id: PropTypes.any.isRequired,
+        text: PropTypes.string.isRequired,
+        status: PropTypes.oneOf(['open', 'done']).isRequired
+    })
+};
+
+export default TaskForm;
+```
+
+Notice that we are using a different convention here. We are categorizing the form as something different than a component. We will do this with something like a scene as well later on. We are also not putting the suffix "Component" anymore, instead, we suffix it with "Form".
+
+This form is made to be ready for not just creating tasks but also accepting existing tasks and updating it. Basic validations are in place as well.
+
+# On to Stitching Scenes
+
+Now that we've pretty much completed our components, we can now "stitch" them together. Click [here](/modules/todo/stitching.md) for the next lesson about stitching.

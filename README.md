@@ -79,7 +79,7 @@ npm install -g create-react-app
 For this part of the session we'll be learning more through development of an application instead of just discussions.
 
 - 08 [Structuring & Routing React](/modules/todo/structure-and-routes.md)
-- 09 [Building the Application UI from XD (An application of atomic design)](/modules/todo/building-ui.md)
+- 09 [Building the Application UI from XD (An application of atomic design)](/modules/todo/setting-up-structure-and-routes.md)
 - 10 [Adding Behavior With Redux](/modules/todo/redux.md)
 - 11 [Google Authentication with Firebase](/modules/todo/firebase-auth.md)
 - 12 [Persistence with Firestore](/modules/todo/firebase-persistence.md)
