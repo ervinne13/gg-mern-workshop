@@ -5,7 +5,7 @@ By default, React's structure from "create-react-app" is not very ideal for even
 After creating your project, let's prep it by installing the necessary components:
 
 ```bash
-npm install react-router-dom moment react-moment prop-types react-flexbox-grid
+npm install react-router-dom moment react-moment prop-types react-flexbox-grid redux react-redux
 ```
 
 ## Cleaning Up

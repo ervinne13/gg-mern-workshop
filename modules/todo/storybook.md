@@ -1078,6 +1078,7 @@ class VerticalDateNavigatorComponent extends React.Component {
                 <ul className="vertical-date-navigator">
                     {displayDateSet && displayDateSet.map(date => 
                         <CalendarLinkItemListItem 
+                            key={date}
                             selectedDate={selectedDate} 
                             date={date} 
                             tasksSummary={tasksSummary} />)}
