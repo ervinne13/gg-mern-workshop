@@ -111,6 +111,13 @@ export const deleteTask = (task) => {
         task
     };
 };
+
+export const toggleTaskStatus = (task) => {
+    return {
+        type: TOGGLE_TASK,
+        task
+    };
+};
 ```
 
 Action types our our identifier to what happened. Inside each action is the relevant data to that action.
@@ -376,7 +383,6 @@ Lastly, add a checker that will redirect if task is submitted successfully:
 
 PS: For now, let's hardcode the date, we'll change this later on.
 
-
 __Implementing the Reducer__
 
 Now let's add a reducer to handle new tasks and add it to the state:
@@ -464,3 +470,632 @@ const TaskListComponent = ({ tasks }) => (
 
 ## Toggling Tasks
 
+Let's create a handler in the reducer to update the state of a tasks when it's status is toggled:
+
+```js
+const handleToggleTaskAction = (state, action) => {
+    const tasksBeingDisplayed = [ ...state.tasksBeingDisplayed ].map(task => {
+        const idMatches = action.task.id === task.id;
+        const isOpen = task.status === 'open';
+        if (idMatches && isOpen) {
+            return { ...task, status: 'done' };
+        } else if (idMatches && !isOpen) {
+            return { ...task, status: 'open' };
+        } else {
+            return task;
+        }
+    })
+
+    return { ...state, tasksBeingDisplayed };
+};
+```
+
+... and of course, call it in the reducer for the matching action type:
+
+```js
+case TOGGLE_TASK:
+    return handleToggleTaskAction(state, action);
+```
+
+Then we'll connect the `Task` component directly (instead of the list since that component already has the infor about the task).
+
+Create the container `App/Client/Features/Task/Components/Task/TaskContainer.js` with the contents:
+
+```js
+import TaskComponent from './TaskComponent';
+import { connect } from 'react-redux';
+import { toggleTaskStatus } from 'App/Client/Features/Tasks/Redux/actions';
+
+const mapDispatchToProps = dispatch => {
+    return {
+        onToggle: task => dispatch(toggleTaskStatus(task))
+    }
+};
+
+export default connect(null, mapDispatchToProps)(TaskComponent);
+```
+
+... to dispatch `toggleTaskStatus` whenever `onToggle` is triggered.
+
+Lastly, we'll point to the container in our directory descriptor:
+
+File `package.json`:
+```json
+{
+    "main": "./TaskContainer.js"
+}
+```
+
+And that's it!
+
+## Handling Deletion (Version 1)
+
+Let's try deleting tasks without modal first. Update the task container to map `onRemove` props to dispatch as well:
+
+```js
+    onRemove: task => dispatch(deleteTask(task))
+```
+
+... also update the import:
+
+```js
+import { toggleTaskStatus, deleteTask } from 'App/Client/Features/Tasks/Redux/actions';
+```
+
+Then implement actual deletion in our redux by adding the handler in our reducers file:
+
+```js
+const handleRemoveTaskAction = (state, action) => {
+    const tasksBeingDisplayed = [ ...state.tasksBeingDisplayed ]
+        .filter(task => action.task.id !== task.id);
+
+    return { ...state, tasksBeingDisplayed };
+};
+```
+
+Then register it in the reducer by adding a case:
+
+```js
+case DELETE_TASK:
+    return handleRemoveTaskAction(state, action);
+```
+
+Testing in the browser should now remove a task on delete.
+
+## Handling Deletion (Version 2 - with Modal)
+
+Let's first add the modal in the scene that it should appear on.
+
+Update the `TaskListPerDateScene` component in `App/Client/Features/Tasks/Scenes/` to:
+
+```jsx
+import React, { Fragment } from 'react';
+import { Grid, Row, Col } from 'react-flexbox-grid';
+import { Link } from 'react-router-dom';
+import Modal from 'App/Client/Common/Components/Modal';
+import Button from 'App/Client/Common/Components/Button';
+import VerticalDateNavigator from 'App/Client/Features/Calendar/Components/VerticalDateNavigator';
+import TaskList from 'App/Client/Features/Tasks/Components/TaskList';
+import ConfirmDeletion from 'App/Client/Features/Tasks/Components/ConfirmDeletion';
+import './style.css';
+
+class TaskListPerDateScene extends React.Component {
+    
+    componentDidMount() {
+        if (this.props.onReadyToReceiveTasks) {
+            this.props.onReadyToReceiveTasks();
+        }
+    }
+
+    render() {
+        const { isConfirmDeletionModalOpen } = this.props;
+        return (
+            <Fragment>
+                <Modal isOpen={isConfirmDeletionModalOpen}>
+                    <ConfirmDeletion />
+                </Modal>
+                <Grid>
+                    <Row>
+                        <Col sm={12} md={4}>
+                            <VerticalDateNavigator selectedDate={new Date()} />
+                        </Col>
+                        <Col sm={12} md={8}>
+                            <div className="task-list-header">
+                                <h1>Tasks</h1>
+                                <Link to="/tasks/create">
+                                    <Button size="large">+ Create New</Button>
+                                </Link>
+                            </div>
+                            <TaskList />
+                        </Col>
+                    </Row>
+                </Grid>
+            </Fragment>
+           
+        );
+    }
+}
+
+export default TaskListPerDateScene;
+```
+
+Then update `TaskListPerDateContainer` to:
+
+```jsx
+import TaskListPerDateScene from './TaskListPerDateScene';
+import { connect } from 'react-redux';
+// import { receiveTasks } from 'App/Client/Features/Tasks/Redux/actions';
+
+const mapStateToProps = (state) => {
+    const isConfirmDeletionModalOpen = !!state.tasksReducers.taskBeingDeleted
+    return {
+        isConfirmDeletionModalOpen
+    };
+};
+
+// const mapDispatchToProps = (dispatch) => {
+//     return {
+//         onReadyToReceiveTasks: () => dispatch(receiveTasks())
+//     }
+// }
+
+export default connect(mapStateToProps, null)(TaskListPerDateScene);
+```
+
+This will check if we have a value in taskBeingDeleted and open the modal according to it.
+
+### Splitting Actions
+
+Now we need to split the DELETE_TASK action into two, the intent to delete and the actual deletion, we also need to create an action for cancelling task deletion. Create a new action type by adding the following code in your `App/Client/Features/Tasks/Redux/actions.js`
+
+```js
+export const REQUEST_TASK_DELETION = 'REQUEST_TASK_DELETION';
+export const CANCEL_TASK_DELETION = 'CANCEL_TASK_DELETION';
+```
+
+and it's action creator:
+
+```js
+export const requestTaskDeletion = (task) => {
+    return {
+        type: REQUEST_TASK_DELETION,
+        task
+    };
+};
+
+export const cancelTaskDeletion = () => {
+    return { type: CANCEL_TASK_DELETION };
+};
+```
+
+Now update your reducer and add the handler:
+
+```js
+const handleRequestTaskDeletion = (state, action) => {
+    const taskBeingDeleted = { ...action.task };
+    return { ...state, taskBeingDeleted };
+};
+```
+
+and register it:
+
+```js
+case REQUEST_TASK_DELETION:
+    return handleRequestTaskDeletion(state, action);
+```
+
+Then change the action dispatched in the `App/Client/Features/Tasks/Components/Task/TaskContainer.js` from:
+
+```js
+onRemove: task => dispatch(deleteTask(task))
+```
+
+to
+
+```js
+onRemove: task => dispatch(requestTaskDeletion(task))
+```
+
+also update your import to import `requestTaskDeletion` instead of `deleteTask`.
+
+Now deleting tasks should automatically open the modal instead of deleting the task right away.
+
+Now let's attach the actual deletion in the modal.
+
+Create a new container `App/Client/Features/Tasks/ConfirmDeletionContainer.js` with the following contents:
+
+```js
+
+import ConfirmDeletionComponent from './ConfirmDeletionComponent';
+import { connect } from 'react-redux';
+import { deleteTask, cancelTaskDeletion } from 'App/Client/Features/Tasks/Redux/actions';
+
+const mapDispatchToProps = (dispatch) => {
+    return {
+        onConfirm: task => dispatch(deleteTask(task)),
+        onCancel: () => dispatch(cancelTaskDeletion())
+    };
+};
+
+export default connect(null, mapDispatchToProps)(ConfirmDeletionComponent);
+```
+
+We have a problem though, we havent set the `ConfirmDeletionComponent` to know about the task being deleted. Let's fix that real quick and edit it by adding the `task` to the props:
+
+```jsx
+const ConfirmDeletionComponent = ({ task, onConfirm, onCancel }) => (
+    <div className="confirm-deletion-prompt">
+        <div className="message">
+            <h1>Are you sure you want to remove this task?</h1>
+            <p>This action cannot be undone</p>
+        </div>
+        <div className="actions">
+            <FlatButton type="danger" onClick={() => onConfirm(task)}>Remove</FlatButton>
+            <FlatButton type="grey" onClick={() => onCancel()}>Cancel</FlatButton>
+        </div>
+    </div>
+);
+```
+
+But now, we'll have to fill that missing task, we can simply write a `mapStateToProps` in the same container. The container should now look like:
+
+```js
+import ConfirmDeletionComponent from './ConfirmDeletionComponent';
+import { connect } from 'react-redux';
+import { deleteTask, cancelTaskDeletion } from 'App/Client/Features/Tasks/Redux/actions';
+
+const mapStateToProps = (state) => {
+    return {
+        task: state.tasksReducers.taskBeingDeleted
+    }
+};
+
+const mapDispatchToProps = (dispatch) => {
+    return {
+        onConfirm: task => dispatch(deleteTask(task)),
+        onCancel: () => dispatch(cancelTaskDeletion())
+    };
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(ConfirmDeletionComponent);
+```
+
+Finally, point the directory descriptor to the container:
+```json
+{
+    "main": "./ConfirmDeletionContainer.js"
+}
+```
+
+Now confirming deletion should actually delete the task. But it does not close the modal. To make this happen, we can update the `handleRemoveTaskAction` in the actions and reset the `taskBeingDeleted` for every successfully deleted task.
+
+```js
+const handleRemoveTaskAction = (state, action) => {
+    const taskBeingDeleted = null;
+    const tasksBeingDisplayed = [ ...state.tasksBeingDisplayed ]
+        .filter(task => action.task.id !== task.id);
+
+    return { ...state, tasksBeingDisplayed, taskBeingDeleted };
+};
+```
+
+Nice, cancel does not work yet though. Let's quickly fix that by adding a new reducer handler:
+
+```js
+const handleCancelTaskDeletion = (state) => {
+    const taskBeingDeleted = null;
+    return { ...state, taskBeingDeleted };
+};
+```
+
+... and registering it in the reducer's switch case:
+
+```js
+case CANCEL_TASK_DELETION:
+    return handleCancelTaskDeletion(state);
+```
+
+And, all done!
+
+# Dividing Tasks by Date
+
+Reviewing the "Actions from Calendar Feature" section earlier. We only really have 1 action for the Calendar feature. We can choose to create a new set of redux setup for the Calendar.
+
+For the instructor though, this is more trouble than it's worth. Let's just slap in an `Link` to each `CalendarLinkItem` instead since we're basing on the url anyway:
+
+Update `App/Client/Features/Calendar/Components/CalendarLinkItem.jsx`'s `const CalendarLinkItemComponent` code to:
+
+```jsx
+const CalendarLinkItemComponent = ({ taskMessage, taskHighlight, date, isActive }) => {
+    const dateObj = new Date(date);
+    const dateString = moment(dateObj).format("YYYY-MM-DD");
+
+    return (
+        <Link to={ `/tasks/${dateString}` }>
+            <div className={`calendar-link-item ${isActive ? "-is-active" : ""}`}>
+                <div className="calendar-link-item-content">
+                    <DayOfWeek date={dateObj} />
+                    <TaskStatus highlight={taskHighlight}>{taskMessage}</TaskStatus>
+                </div>
+                <DayOfMonth date={dateObj} />
+            </div>
+        </Link>
+    );
+};
+```
+
+and import the following:
+
+```js
+import Moment from 'react-moment';
+import moment from 'moment';
+import { Link } from 'react-router-dom';
+```
+
+## Making Form Date Aware
+
+Now that we can nagivate through dates, let's first update our routes since the form does not know about the date. Update `App/Client/Routes.jsx` and change `/tasks/create` to `/tasks/:date/create`.
+
+```jsx
+    <Route exact path="/tasks/:date/create" component={ TaskFormPerDateScene } />
+```
+
+We'll also have to update the scene that links to the form. Update `App/Client/Features/Tasks/Scenes/TaskListPerDateScene.jsx`, in the `render` function, update the  `Link`'s `to` property from `"/tasks/create"` to `{ `/tasks/${date}/create` }` and add the variable date by:
+
+```js
+const date = this.props.match.params.date;
+```
+
+Do the same for `VerticalDateNavigator`'s `selectedDate` property.
+
+Your render function should now look something like:
+
+```jsx
+    render() {
+        const { isConfirmDeletionModalOpen } = this.props;
+        const date = this.props.match.params.date;
+        return (
+            <Fragment>
+                <Modal isOpen={isConfirmDeletionModalOpen} hideDefaultCloseButton={true}>
+                    <ConfirmDeletion />
+                </Modal>
+                <Grid>
+                    <Row>
+                        <Col sm={12} md={4}>
+                            <VerticalDateNavigator selectedDate={ date } />
+                        </Col>
+                        <Col sm={12} md={8}>
+                            <div className="task-list-header">
+                                <h1>Tasks</h1>
+                                <Link to={ `/tasks/${date}/create` }>
+                                    <Button size="large">+ Create New</Button>
+                                </Link>
+                            </div>
+                            <TaskList />
+                        </Col>
+                    </Row>
+                </Grid>
+            </Fragment>
+           
+        );
+    }
+```
+
+Let's do the same for `App/Client/Features/Tasks/Scenes/TaskFormPerDateScene.jsx` and pass in the `date` to both `VerticalDateNavigator` and `TaskForm`.
+
+File `TaskFormPerDateScene.jsx`'s `render` function:
+
+```jsx
+    render() {
+        const date = this.props.match.params.date;
+        return (
+            <Grid>
+                <Row>
+                    <Col sm={12} md={4}>
+                        <VerticalDateNavigator selectedDate={date} />
+                    </Col>
+                    <Col sm={12} md={8}>                        
+                        <TaskForm date={ date }/>
+                    </Col>
+                </Row>
+            </Grid>
+        );
+    }
+```
+
+IMPORTANT! The prop `match` is only available in components that are used directly by the `BrowserRouter`. This is the reason why we are only getting this from the scene components and not directly in the components that need them.
+
+We can now remove the hardcoded date redirect in the `App/Client/Features/Tasks/Forms/Task/TaskForm.jss`'s `render` function:
+```js
+    if (this.state.taskSubmitted) {
+        const { date } = this.props;
+        return <Redirect to={ `/tasks/${date}` } />
+    }
+```
+
+Let's also update `triggerSaveTask` to include the date when triggering the `onSaveTask` callback:
+
+```js
+    triggerSaveTask = (event) => {
+        event.preventDefault();
+        if (!this.validateTask(this.state.task)) {
+            return;
+        }
+
+        if (this.props.onSaveTask) {
+            const { date } = this.props;
+            const task = { ...this.state.task, date };
+            this.props.onSaveTask(task);
+        }
+
+        this.setState({ taskSubmitted: true });
+    }
+```
+
+### Filtering Tasks Per Date
+
+This is data related, so if our methods are correct so far, we do not have to update anything in the presentational components anymore.
+
+Let's review first. In the tasks feature's reducer, we only really maintain state for `tasksBeingDisplayed`. Now though, we can maintain a new array called `tasks` that contains all the tasks regardless of the date. We would have to know the date though so we'll add a new state `currentDateSelected`.
+
+In `App/Client/Features/Tasks/Redux/reducers.js`, update your initial state to:
+
+```js
+const initialState = {
+    currentDateSelected: null,
+    tasks: [],
+    tasksBeingDisplayed: [],
+    taskBeingDeleted: null
+}
+```
+
+Let's then update the `TaskListPerDateContainer` to use the previously commented out code but include the date this time:
+
+```js
+import TaskListPerDateScene from './TaskListPerDateScene';
+import { connect } from 'react-redux';
+import { receiveTasks } from 'App/Client/Features/Tasks/Redux/actions';
+
+const mapStateToProps = (state) => {
+    const isConfirmDeletionModalOpen = !!state.tasksReducers.taskBeingDeleted
+    return {
+        isConfirmDeletionModalOpen
+    };
+};
+
+const mapDispatchToProps = (dispatch) => {
+    return {
+        onReadyToReceiveTasks: date => dispatch(receiveTasks(date))
+    }
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(TaskListPerDateScene);
+```
+
+We will have a problem here though, onReadyToReceiveTasks currently only triggers on page load since we attached it to `componentDidMount`. If the date changes, React, being an SPA first, will just re render components instead of refreshing the  page (good).
+
+So we'll have to trigger `onReadyToReceiveTasks` when the component updates as well. Let's then hook to `componentDidUpdate`. Update `TaskListPerDateScene` and set the following functions:
+
+```jsx
+    componentDidMount() {    
+        this.triggerOnReadyToReceiveTasks();
+    }
+
+    componentDidUpdate(prevProps) {
+        if (this.props.match.params.date !== prevProps.match.params.date) {
+            this.triggerOnReadyToReceiveTasks();
+        }
+    }
+
+    triggerOnReadyToReceiveTasks() {
+        if (this.props.onReadyToReceiveTasks) {
+            const date = this.props.match.params.date;
+            this.props.onReadyToReceiveTasks(date);
+        }
+    }
+```
+
+Here, we extracted the common code to a new function `triggerOnReadyToReceiveTasks` and called it to both `componentDidMount` and `componentDidUpdate` with `componentDidUpdate` conditionally updating only if the date really changed.
+
+Let's then update our actions by letting `receiveTasks` get date instead of the tasks instead. Update the relevant function in the file `App/Client/Features/Tasks/Redux/actions.js`:
+
+```js
+export const receiveTasks = (date) => {
+    return {
+        type: RECEIVE_TASKS,
+        date
+    };
+};
+```
+
+Then in `App/Client/Features/Tasks/Redux/reducers.js`, update the `handleReceiveTasksActions` handler to:
+
+```js
+const handleReceiveTasksActions = (state, action) => {
+    const currentDateSelected = action.date;
+    const tasksBeingDisplayed = state.tasks.filter(task => task.date === currentDateSelected);
+    return { ...state, tasksBeingDisplayed, currentDateSelected };
+};
+```
+
+This handler now functions to filter the `tasksBeingDisplayed` from the `tasks` state.
+
+Now let's update the other handlers so that they update the `tasks` instead of the `tasksBeingDisplayed` directly:
+
+```js
+const handleAddTaskAction = (state, action) => {
+    const tasks = [
+        ...state.tasks,
+        action.task
+    ];
+
+    return { ...state, tasks };
+};
+
+const handleToggleTaskAction = (state, action) => {
+    const tasks = toggleTaskFromCollection([ ...state.tasks ], action);
+    const tasksBeingDisplayed = toggleTaskFromCollection([ ...state.tasksBeingDisplayed ], action);
+
+    return { ...state, tasks, tasksBeingDisplayed };
+};
+
+const toggleTaskFromCollection = (tasks, action) => {
+    return tasks.map(task => {
+        const idMatches = action.task.id === task.id;
+        const isOpen = task.status === 'open';
+        if (idMatches && isOpen) {
+            return { ...task, status: 'done' };
+        } else if (idMatches && !isOpen) {
+            return { ...task, status: 'open' };
+        } else {
+            return task;
+        }
+    })
+};
+
+const handleRemoveTaskAction = (state, action) => {
+    const taskBeingDeleted = null;
+    const tasks = [ ...state.tasks ].filter(task => action.task.id !== task.id);
+    const tasksBeingDisplayed = [ ...state.tasksBeingDisplayed ].filter(task => action.task.id !== task.id);
+
+    return { ...state, tasks, tasksBeingDisplayed, taskBeingDeleted };
+};
+```
+
+# Fixing Storybook After Updates
+
+## Related to Routing
+
+The component `Link` cannot be used outside browser routers. So update the calendar related storybooks and add the decorator:
+
+```jsx
+    .addDecorator(story => (
+        <BrowserRouter>
+            <Route path="*" component={ () => story() } />
+        </BrowserRouter>
+    ))
+```
+
+after importing `BrowserRouter` and `Route` with:
+
+```jsx
+import { BrowserRouter, Route } from 'react-router-dom';
+```
+
+This generates an issue though. The story source displays the `BrowserRouter` instead of our component. This is an ongoing issue with Storybook and it seems our only option for now is to wait for updates on their end.
+
+## Related to Containers
+
+After adding containers, check your storybook. A number of components should have errors. This is because we are trying to render "Containerized" components in storybook whereas we are only really interested in the components.
+
+Simply importing the components directly (ignoring directory descriptor) should fix this. Update your imports to:
+
+```js
+import React from 'react';
+import { storiesOf } from '@storybook/react';
+import Modal from 'App/Client/Common/Components/Modal';
+import Task from 'App/Client/Features/Tasks/Components/Task/TaskComponent';
+import TaskList from 'App/Client/Features/Tasks/Components/TaskList/TaskListComponent';
+import TaskForm from 'App/Client/Features/Tasks/Forms/Task/TaskForm';
+import ConfirmDeletion from 'App/Client/Features/Tasks/Components/ConfirmDeletion/ConfirmDeletionComponent';
+```

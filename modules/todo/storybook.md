@@ -1101,7 +1101,7 @@ const CalendarLinkItemListItem = ({ selectedDate, date, tasksSummary }) => {
     if (taskSummary) {
         const {taskMessage, taskHighlight} = makeTaskSummaryDisplayable(taskSummary);
         return (
-            <li key={date.toString()} onClick={() => this.triggerOnDateClicked(date)} >
+            <li key={date.toString()} >
                 <CalendarLinkItem
                     date={date}
                     taskMessage={taskMessage}
@@ -1112,7 +1112,7 @@ const CalendarLinkItemListItem = ({ selectedDate, date, tasksSummary }) => {
         );
     } else {
         return (
-            <li key={date.toString()} onClick={() => this.triggerOnDateClicked(date)} >
+            <li key={date.toString()} >
                 <CalendarLinkItem
                     date={date}
                     isActive={testDateMatch(selectedDate, date)}
