@@ -850,7 +850,7 @@ Now we can update our `calendar.jsx` Storybook and add the `CalendarLinkItem` co
 
 ```jsx
 storiesOf('Calendar Link Item', module)
-    .addDecorator(storyFn => <div style={{ width: '400px', borderTop: '1px #7E7E7E solid', borderBottom: '1px #7E7E7E solid'  }} children={storyFn()} />)}} children={storyFn()} />)
+    .addDecorator(story => <div style={{ width: '400px', borderTop: '1px #7E7E7E solid', borderBottom: '1px #7E7E7E solid'  }} children={story()} />)}} children={story()} />)
     .add('using date object', () => (
         <CalendarLinkItem
             taskMessage="All Tasks Done"
@@ -1196,7 +1196,7 @@ Now let's display them in the Storybook:
 
 ```jsx
 storiesOf('Vertical Date Navigator', module)
-    .addDecorator(storyFn => <div style={{ width: '400px' }} children={storyFn()} />)
+    .addDecorator(story => <div style={{ width: '400px' }} children={story()} />)
     .add('no selected date', () => (
         <VerticalDateNavigator />
     ))
@@ -1341,7 +1341,7 @@ import { storiesOf } from '@storybook/react';
 import Task from 'App/Client/Features/Tasks/Components/Task';
 
 storiesOf('Tasks', module)
-    .addDecorator(storyFn => <div style={{ width: '600px', borderBottom: '1px solid #7E7E7E', borderTop: '1px solid #7E7E7E', margin: 'auto' }} children={storyFn()} />)
+    .addDecorator(story => <div style={{ width: '600px', borderBottom: '1px solid #7E7E7E', borderTop: '1px solid #7E7E7E', margin: 'auto' }} children={story()} />)
     .add('default/open task', () => (
         <Task task={{ text: 'Dentist appointment @ 2PM', status: 'open' }} />
     ))
@@ -1487,14 +1487,17 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import './style.css';
 
-const Modal = ({ children, isOpen, onCloseModalRequested }) => (
+const Modal = ({ children, isOpen, hideDefaultCloseButton, onCloseModalRequested }) => (
     <div className={`lite-modal-bg ${isOpen ? '-active' : ''}`}>
         <div className="lite-modal-content">
-            <div className="lite-modal-btn-wrapper">
-                <button className="lite-modal-exit" onClick={onCloseModalRequested} >
-                    &times;
-                </button>
-            </div>
+            {hideDefaultCloseButton ? '' : (
+                <div className="lite-modal-btn-wrapper">
+                    <button className="lite-modal-exit" onClick={onCloseModalRequested} >
+                        &times;
+                    </button>
+                </div>
+            )}
+            
             {children}
         </div>
     </div>
@@ -1577,7 +1580,7 @@ Add this component to the Storybook with:
 
 ```jsx
 storiesOf('Confirm Deletion', module)
-    .addDecorator(storyFn => <div style={{ width: '600px', margin: 'auto' }} children={storyFn()} />)
+    .addDecorator(story => <div style={{ width: '600px', margin: 'auto' }} children={story()} />)
     .add('ui only', () => (
         <ConfirmDeletion />
     ))
@@ -1587,6 +1590,14 @@ storiesOf('Confirm Deletion', module)
                 onConfirm={() => console.log('confirmed deletion')} 
                 onCancel={() => console.log('canceled deletion')} 
                 />
+        </Modal>
+    ))
+    .add('inside modal without default close', () => (
+        <Modal isOpen={true} hideDefaultCloseButton={true}>
+            <ConfirmDeletion
+                onConfirm={() => console.log('confirmed deletion')}
+                onCancel={() => console.log('canceled deletion')}
+            />
         </Modal>
     ))
 ```
