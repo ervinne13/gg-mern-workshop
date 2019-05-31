@@ -1062,6 +1062,140 @@ const handleRemoveTaskAction = (state, action) => {
 };
 ```
 
+## Implementing Task Messages
+
+Oops, we forgot one feature. Notice that there's an error whenever we refresh the page about `taskMessage`. That's because we haven't put the task messages to the calendar.
+
+Let's create a new action type and action creator for it first, in `App/Client/Features/Tasks/Redux/actions.js` add the codes:
+
+```jsx
+export const REFRESH_TASK_SUMMARIES = 'REFRESH_TASK_SUMMARIES';
+
+//  ...
+
+export const refreshTaskSummaries = () => {
+    return { type: REFRESH_TASK_SUMMARIES };
+};
+```
+
+Then let's create a reducer for it in `App/Client/Features/Tasks/Redux/reducers.js`:
+
+```js
+//  ...
+    case REFRESH_TASK_SUMMARIES:
+        return handleRefreshTaskSummaries(state, action);
+//  ...
+
+const handleRefreshTaskSummaries = (state, action) => {    
+    let taskSummariesPerDate = {};
+
+    state.tasks.forEach(task => {
+        if (task.date in taskSummariesPerDate) {
+            taskSummariesPerDate[task.date] = addTaskToSummary(taskSummariesPerDate[task.date], task);
+        } else {
+            const newTaskSummary = { date: task.date, taskCount: 0, doneTaskCount: 0 };
+            taskSummariesPerDate[task.date] = addTaskToSummary(newTaskSummary, task);
+        }
+    });
+    
+    taskSummariesPerDate = Object.values(taskSummariesPerDate);
+    console.log(taskSummariesPerDate);
+    return { ...state, taskSummariesPerDate };
+};
+
+const addTaskToSummary = (summary, task) => {
+    let computedSummary = { ...summary };
+
+    computedSummary.taskCount ++;
+    if (task.status !== 'open') {
+        computedSummary.doneTaskCount ++;   
+    }
+
+    return computedSummary;
+};
+```
+
+This will go through the available tasks and summarize them for use of the component.
+
+Add the `taskSummariesPerDate` to your initial state:
+
+```js
+const initialState = {
+    currentDateSelected: null,
+    tasks: [],
+    tasksBeingDisplayed: [],
+    taskBeingDeleted: null,
+    taskSummariesPerDate: []
+}
+```
+
+Notice that we've set `refreshTaskSummaries` as an action that can be dispatched. We'll use this later when we move this responsibility to the backend. What we're going to do instead is trigger the handler directly. Update the `tasksReducer` to be like below:
+
+```js
+const tasksReducer = (state = initialState, action) => {
+    switch(action.type) {
+        case RECEIVE_TASKS:
+            return handleReceiveTasksActions(state, action);
+        case ADD_TASK:
+            return handleRefreshTaskSummaries(handleAddTaskAction(state, action), action);
+        case TOGGLE_TASK:
+            return handleRefreshTaskSummaries(handleToggleTaskAction(state, action), action);
+        case REQUEST_TASK_DELETION:
+            return handleRefreshTaskSummaries(handleRequestTaskDeletion(state, action), action);
+        case CANCEL_TASK_DELETION:
+            return handleCancelTaskDeletion(state);
+        case DELETE_TASK:
+            return handleRefreshTaskSummaries(handleRemoveTaskAction(state, action), action);            
+        case REFRESH_TASK_SUMMARIES:
+            return handleRefreshTaskSummaries(state, action);
+        default:        
+            return state;
+    }
+};
+```
+
+This will "nest" the reducers and trigger updates to the task summaries after the relevant handlers are done doing their task.
+
+Job well done so far. Let's now connect the `VerticalDateNavigator` to Redux so it can get the `taskSummariesPerDate`.
+
+Create a new file `App/Client/Features/Calendar/VerticalDateNavigator/VerticalDateNavigatorContainer.js`
+
+```js
+
+import VerticalDateNavigatorComponent from './VerticalDateNavigatorComponent';
+import { connect } from 'react-redux';
+
+const mapStateToProps = (state) => {
+    return {
+        tasksSummary: state.tasksReducers.taskSummariesPerDate
+    }
+};
+
+export default connect(mapStateToProps)(VerticalDateNavigatorComponent);
+```
+
+... and of course, point your `package.json` to the container:
+
+```json
+{
+    "main": "./VerticalDateNavigatorContainer.js"
+}
+```
+
+Now test your application and it should now dynamically update your calendar.
+
+Before we finalize, let's remove that annoying error, update `CalendarLinkItemComponent`'s PropTypes to:
+
+```jsx
+CalendarLinkItemComponent.propTypes = {
+    taskMessage: PropTypes.node,
+    taskHighlight: PropTypes.oneOf(['primary', 'info']),
+    date: looseDate
+};
+```
+
+Since `taskMessage` is not really required anymore.
+
 # Fixing Storybook After Updates
 
 ## Related to Routing
